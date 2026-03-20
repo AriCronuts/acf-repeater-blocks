@@ -1,0 +1,42 @@
+# ── Dependencias ──────────────────────────────────────────────────────────────
+/vendor/
+/node_modules/
+
+# ── Builds y distribución ─────────────────────────────────────────────────────
+*.zip
+/dist/
+/build/
+
+# ── Entorno local ─────────────────────────────────────────────────────────────
+.env
+.env.*
+*.log
+
+# ── IDEs y editores ───────────────────────────────────────────────────────────
+.idea/
+.vscode/
+*.sublime-project
+*.sublime-workspace
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ── PHP ───────────────────────────────────────────────────────────────────────
+*.cache
+
+# ── WordPress (si el repo está dentro de una instalación WP) ─────────────────
+/wp-config.php
+/wp-content/uploads/
+/wp-content/upgrade/
+/wp-content/cache/
+
+# ── Herramientas de calidad de código ─────────────────────────────────────────
+.phpcs.xml
+phpcs.xml
+phpunit.xml
+.phpunit.result.cache
+
+# ── npm / Composer lock (descomenta si no quieres versionar los locks) ─────────
+# composer.lock
+# package-lock.json
+# yarn.lock

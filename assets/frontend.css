@@ -1,0 +1,59 @@
+/* ACF Repeater for Elementor — Frontend */
+
+.arb-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+}
+
+.arb-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.arb-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.arb-table th,
+.arb-table td {
+    padding: 10px 14px;
+    border: 1px solid #e5e7eb;
+    text-align: left;
+    vertical-align: top;
+}
+
+.arb-table thead th {
+    background: #f9fafb;
+    font-weight: 600;
+}
+
+.arb-item {
+    box-sizing: border-box;
+}
+
+.arb-sf {
+    display: block;
+}
+
+.arb-sf img {
+    display: block;
+    max-width: 100%;
+}
+
+.arb-no-results {
+    color: #6b7280;
+    font-style: italic;
+}
+
+@media (max-width: 768px) {
+    .arb-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 480px) {
+    .arb-grid { grid-template-columns: 1fr; }
+}
