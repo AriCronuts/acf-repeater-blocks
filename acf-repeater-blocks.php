@@ -20,7 +20,7 @@ define( 'ARB_URL',     plugin_dir_url( __FILE__ ) );
 if ( file_exists( ARB_DIR . 'plugin-update-checker/load-v5p5.php' ) ) {
     require_once ARB_DIR . 'plugin-update-checker/load-v5p5.php';
     $arbUpdateChecker = YahnisElsts\PluginUpdateChecker\v5\PucFactory::buildUpdateChecker(
-        'https://github.com/Cronuts/acf-repeater-blocks/',
+        'https://github.com/AriCronuts/acf-repeater-blocks/',
         __FILE__,
         'acf-repeater-blocks'
     );
