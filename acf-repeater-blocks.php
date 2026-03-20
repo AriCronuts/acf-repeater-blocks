@@ -5,7 +5,7 @@
  * Version:      1.0.0
  * Author:       Cronuts Digital
  * Author URI:   https://cronuts.digital
- * License:      GPL-2.0-or-later
+ * License:      GPL-3.0-or-later
  * Requires PHP: 7.4
  * Requires at least: 5.9
  */
