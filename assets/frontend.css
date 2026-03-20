@@ -2,8 +2,8 @@
 
 .arb-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
     gap: 24px;
+    /* grid-template-columns se genera dinámicamente por Elementor según el control responsive */
 }
 
 .arb-list {
@@ -51,9 +51,4 @@
     font-style: italic;
 }
 
-@media (max-width: 768px) {
-    .arb-grid { grid-template-columns: repeat(2, 1fr); }
-}
-@media (max-width: 480px) {
-    .arb-grid { grid-template-columns: 1fr; }
-}
+/* Los breakpoints responsive del grid se generan por Elementor según la configuración del widget */
