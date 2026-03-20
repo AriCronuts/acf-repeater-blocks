@@ -17,14 +17,16 @@ define( 'ARB_DIR',     plugin_dir_path( __FILE__ ) );
 define( 'ARB_URL',     plugin_dir_url( __FILE__ ) );
 
 // ── Actualizaciones automáticas desde GitHub ──────────────────────────────
-if ( file_exists( ARB_DIR . 'plugin-update-checker/load-v5p5.php' ) ) {
-    require_once ARB_DIR . 'plugin-update-checker/load-v5p5.php';
+if ( file_exists( ARB_DIR . 'plugin-update-checker/plugin-update-checker/load-v5p6.php' ) ) {
+    require_once ARB_DIR . 'plugin-update-checker/plugin-update-checker/load-v5p6.php';
     $arbUpdateChecker = YahnisElsts\PluginUpdateChecker\v5\PucFactory::buildUpdateChecker(
         'https://github.com/AriCronuts/acf-repeater-blocks/',
         __FILE__,
         'acf-repeater-blocks'
     );
-    $arbUpdateChecker->setAuthentication( 'TU_GITHUB_TOKEN' );
+    if ( defined( 'ARB_GITHUB_TOKEN' ) ) {
+        $arbUpdateChecker->setAuthentication( ARB_GITHUB_TOKEN );
+    }
     $arbUpdateChecker->setBranch( 'main' );
 }
 
