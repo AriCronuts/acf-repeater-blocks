@@ -12,7 +12,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'ARB_VERSION', '1.0.0' );
+define( 'ARB_VERSION', '1.0.1' );
 define( 'ARB_DIR',     plugin_dir_path( __FILE__ ) );
 define( 'ARB_URL',     plugin_dir_url( __FILE__ ) );
 
