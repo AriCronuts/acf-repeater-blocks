@@ -16,6 +16,18 @@ define( 'ARB_VERSION', '1.0.0' );
 define( 'ARB_DIR',     plugin_dir_path( __FILE__ ) );
 define( 'ARB_URL',     plugin_dir_url( __FILE__ ) );
 
+// ── Actualizaciones automáticas desde GitHub ──────────────────────────────
+if ( file_exists( ARB_DIR . 'plugin-update-checker/load-v5p5.php' ) ) {
+    require_once ARB_DIR . 'plugin-update-checker/load-v5p5.php';
+    $arbUpdateChecker = YahnisElsts\PluginUpdateChecker\v5\PucFactory::buildUpdateChecker(
+        'https://github.com/Cronuts/acf-repeater-blocks/',
+        __FILE__,
+        'acf-repeater-blocks'
+    );
+    $arbUpdateChecker->setAuthentication( 'TU_GITHUB_TOKEN' );
+    $arbUpdateChecker->setBranch( 'main' );
+}
+
 add_action( 'plugins_loaded', function () {
 
     // ── Dependencia: ACF Pro ──────────────────────────────────────────────────
