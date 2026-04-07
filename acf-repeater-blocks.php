@@ -71,9 +71,7 @@ add_action( 'plugins_loaded', function () {
     // ── Widget: se carga DENTRO del hook, cuando Elementor\Widget_Base existe ─
     add_action( 'elementor/widgets/register', function ( $manager ) {
         require_once ARB_DIR . 'includes/class-arb-widget.php';
-        require_once ARB_DIR . 'includes/class-arb-accordion-widget.php';
         $manager->register( new ARB_Widget() );
-        $manager->register( new ARB_Accordion_Widget() );
     } );
 
     // ── Dynamic tags: se carga DENTRO del hook, cuando Tag base existe ────────
