@@ -133,6 +133,7 @@ class ARB_Widget extends \Elementor\Widget_Base {
         $rep->add_control( 'sf_color', [
             'label'     => 'Color texto',
             'type'      => Controls_Manager::COLOR,
+            'global'    => [ 'active' => true ],
             'selectors' => [
                 '{{WRAPPER}} .elementor-repeater-item-{{_id}}' => 'color: {{VALUE}};',
             ],
@@ -383,12 +384,14 @@ class ARB_Widget extends \Elementor\Widget_Base {
         $this->add_control( 'item_bg', [
             'label'     => 'Fondo',
             'type'      => Controls_Manager::COLOR,
+            'global'    => [ 'active' => true ],
             'selectors' => [ '{{WRAPPER}} .arb-item' => 'background-color: {{VALUE}};' ],
         ] );
 
         $this->add_control( 'item_border_color', [
             'label'     => 'Color borde',
             'type'      => Controls_Manager::COLOR,
+            'global'    => [ 'active' => true ],
             'selectors' => [ '{{WRAPPER}} .arb-item' => 'border-color: {{VALUE}};' ],
         ] );
 

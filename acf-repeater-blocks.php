@@ -2,7 +2,7 @@
 /**
  * Plugin Name:  ACF Repeater for Elementor
  * Description:  Usa campos Repeater y Group de ACF Pro directamente en Elementor: modo Sub-campos, HTML con tokens y Plantilla.
- * Version:      1.0.4
+ * Version:      1.1.0
  * Author:       Cronuts Digital
  * Author URI:   https://cronuts.digital
  * License:      GPL-3.0-or-later
@@ -12,7 +12,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'ARB_VERSION', '1.0.4' );
+define( 'ARB_VERSION', '1.1.0' );
 define( 'ARB_DIR',     plugin_dir_path( __FILE__ ) );
 define( 'ARB_URL',     plugin_dir_url( __FILE__ ) );
 
@@ -71,7 +71,9 @@ add_action( 'plugins_loaded', function () {
     // ── Widget: se carga DENTRO del hook, cuando Elementor\Widget_Base existe ─
     add_action( 'elementor/widgets/register', function ( $manager ) {
         require_once ARB_DIR . 'includes/class-arb-widget.php';
+        require_once ARB_DIR . 'includes/class-arb-accordion-widget.php';
         $manager->register( new ARB_Widget() );
+        $manager->register( new ARB_Accordion_Widget() );
     } );
 
     // ── Dynamic tags: se carga DENTRO del hook, cuando Tag base existe ────────
@@ -83,6 +85,11 @@ add_action( 'plugins_loaded', function () {
     // ── CSS frontend ──────────────────────────────────────────────────────────
     add_action( 'elementor/frontend/after_enqueue_styles', function () {
         wp_enqueue_style( 'arb-frontend', ARB_URL . 'assets/frontend.css', [], ARB_VERSION );
+    } );
+
+    // ── JS Accordion (registro; Elementor encola vía get_script_depends()) ───
+    add_action( 'wp_enqueue_scripts', function () {
+        wp_register_script( 'arb-accordion', ARB_URL . 'assets/accordion.js', [], ARB_VERSION, true );
     } );
 
 } );

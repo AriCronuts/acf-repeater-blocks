@@ -52,3 +52,77 @@
 }
 
 /* Los breakpoints responsive del grid se generan por Elementor según la configuración del widget */
+
+/* ── ARB Accordion ─────────────────────────────────────────────────────── */
+
+.arb-accordion {
+    display: flex;
+    flex-direction: column;
+}
+
+.arb-accordion.arb-accordion-cols-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+}
+
+.arb-acc-item {
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    overflow: hidden;
+    background: #fff;
+}
+
+.arb-acc-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    padding: 16px 20px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    text-align: left;
+    gap: 12px;
+}
+
+.arb-acc-question {
+    flex: 1;
+}
+
+.arb-acc-body {
+    overflow: hidden;
+}
+
+.arb-acc-content {
+    padding: 0 20px 20px;
+}
+
+.arb-acc-content img {
+    display: block;
+    max-width: 100%;
+    height: auto;
+    margin-top: 12px;
+}
+
+.arb-acc-icon--close {
+    display: none;
+}
+
+.arb-acc-item.is-open .arb-acc-icon--open {
+    display: none;
+}
+
+.arb-acc-item.is-open .arb-acc-icon--close {
+    display: inline-flex;
+}
+
+.arb-accordion.arb-icon-left .arb-acc-header {
+    flex-direction: row-reverse;
+    justify-content: flex-end;
+}
+
+@media (max-width: 767px) {
+    .arb-accordion.arb-accordion-cols-2 {
+        grid-template-columns: 1fr;
+    }
+}
