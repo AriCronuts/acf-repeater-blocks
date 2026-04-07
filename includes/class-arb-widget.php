@@ -19,8 +19,7 @@ class ARB_Widget extends \Elementor\Widget_Base {
     }
 
     public function get_script_depends(): array {
-        $settings = $this->get_settings();
-        return ( ( $settings['skin'] ?? 'grid' ) === 'accordion' ) ? [ 'arb-accordion' ] : [];
+        return [ 'arb-accordion' ];
     }
 
     // =========================================================================
