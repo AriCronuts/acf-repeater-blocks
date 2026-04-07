@@ -67,7 +67,7 @@ class ARB_Widget extends \Elementor\Widget_Base {
         $this->start_controls_section( 'sec_mode', [
             'label'     => '⚙️ Modo y contenido',
             'tab'       => Controls_Manager::TAB_CONTENT,
-            'condition' => [ 'skin!' => 'accordion' ],
+            'condition' => [ 'skin!' => [ 'accordion', 'template' ] ],
         ] );
 
         $this->add_control( 'display_mode', [
@@ -300,7 +300,25 @@ class ARB_Widget extends \Elementor\Widget_Base {
                 'table'     => 'Tabla',
                 'text'      => 'Texto inline',
                 'accordion' => '🪗 Acordeón',
+                'template'  => '📐 Plantilla Elementor',
             ],
+        ] );
+
+        $this->add_control( 'skin_template_info', [
+            'type'      => Controls_Manager::RAW_HTML,
+            'raw'       => '<small style="color:#9da5ae;line-height:1.8;display:block">
+                Diseña la plantilla en <em>Elementor › Mis Plantillas</em>.<br>
+                Usa el ⚡ de cada widget para conectarlo con<br>
+                <strong>ACF Repeater › campo</strong> vía Dynamic Tags.
+            </small>',
+            'condition' => [ 'skin' => 'template' ],
+        ] );
+
+        $this->add_control( 'skin_template_id', [
+            'label'     => 'Plantilla',
+            'type'      => Controls_Manager::SELECT,
+            'options'   => ARB_ACF_Helpers::get_template_options(),
+            'condition' => [ 'skin' => 'template' ],
         ] );
 
         $this->add_responsive_control( 'grid_cols', [
@@ -760,6 +778,21 @@ class ARB_Widget extends \Elementor\Widget_Base {
         // Modo acordeón: render independiente
         if ( $skin === 'accordion' ) {
             $this->render_accordion( $s, $rows );
+            return;
+        }
+
+        // Modo plantilla Elementor: una plantilla por fila, sin wrapper adicional
+        if ( $skin === 'template' ) {
+            $tpl_id = (int) ( $s['skin_template_id'] ?? 0 );
+            if ( ! $tpl_id ) {
+                $this->placeholder( 'Selecciona una plantilla en el panel → Layout.' );
+                return;
+            }
+            foreach ( $rows as $row ) {
+                ARB_Loop_Context::push( $row );
+                echo \Elementor\Plugin::$instance->frontend->get_builder_content( $tpl_id, true ); // phpcs:ignore
+                ARB_Loop_Context::pop();
+            }
             return;
         }
 
