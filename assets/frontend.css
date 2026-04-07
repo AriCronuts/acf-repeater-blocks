@@ -144,6 +144,9 @@
     .arb-accordion.arb-accordion-cols-2 {
         flex-direction: column;
     }
+    .arb-accordion.arb-accordion-cols-2 .arb-acc-col {
+        width: 100%;
+    }
 }
 
 /* ── Neutralizar hover/focus de button que inyecta Elementor ───────────── */
@@ -160,26 +163,14 @@
 .arb-acc-header--center .arb-acc-question { text-align: center; }
 .arb-acc-header--right  .arb-acc-question { text-align: right; }
 
-/* Ancho completo: icono absolute, padding lateral evita solapamiento */
+/* Ancho completo: icono en flujo flex normal, título ocupa todo el espacio disponible */
 .arb-acc-header--full {
-    position: relative;
-    padding-right: 52px;
+    justify-content: space-between;
+    align-items: flex-start;
 }
 .arb-acc-header--full .arb-acc-question {
     flex: 1;
     text-align: left;
 }
-.arb-acc-header--full .arb-acc-icon {
-    position: absolute;
-    top: 50%;
-    right: 16px;
-    transform: translateY(-50%);
-}
-.arb-accordion.arb-icon-left .arb-acc-header--full {
-    padding-right: 20px;
-    padding-left: 52px;
-}
-.arb-accordion.arb-icon-left .arb-acc-header--full .arb-acc-icon {
-    left: 16px;
-    right: auto;
-}
+/* El icono permanece en el flujo — flex-shrink:0 ya definido en .arb-acc-icon */
+/* icon-left + full: el row-reverse de .arb-icon-left ya lo coloca a la izquierda */
