@@ -78,6 +78,7 @@
     border-radius: 8px;
     overflow: hidden;
     background: #fff;
+    min-width: 0;
 }
 
 .arb-acc-header {
@@ -159,21 +160,26 @@
 .arb-acc-header--center .arb-acc-question { text-align: center; }
 .arb-acc-header--right  .arb-acc-question { text-align: right; }
 
-/* Ancho completo: título ocupa todo el ancho (icono no lo comprime), texto a la izquierda */
+/* Ancho completo: icono absolute, padding lateral evita solapamiento */
 .arb-acc-header--full {
     position: relative;
+    padding-right: 52px;
 }
 .arb-acc-header--full .arb-acc-question {
-    flex: 0 0 100%;
+    flex: 1;
     text-align: left;
 }
 .arb-acc-header--full .arb-acc-icon {
     position: absolute;
     top: 50%;
-    right: 20px;
+    right: 16px;
     transform: translateY(-50%);
 }
+.arb-accordion.arb-icon-left .arb-acc-header--full {
+    padding-right: 20px;
+    padding-left: 52px;
+}
 .arb-accordion.arb-icon-left .arb-acc-header--full .arb-acc-icon {
-    left: 20px;
+    left: 16px;
     right: auto;
 }
