@@ -126,3 +126,28 @@
         grid-template-columns: 1fr;
     }
 }
+
+/* ── Alineación del título ─────────────────────────────────────────────── */
+
+.arb-acc-header--center .arb-acc-question { text-align: center; }
+.arb-acc-header--right  .arb-acc-question { text-align: right; }
+
+/* Ancho completo: título ocupa todo, icono fijo en el borde */
+.arb-acc-header--full {
+    position: relative;
+}
+.arb-acc-header--full .arb-acc-question {
+    width: 100%;
+    text-align: center;
+}
+.arb-acc-header--full .arb-acc-icon {
+    position: absolute;
+    top: 50%;
+    right: 20px;
+    transform: translateY(-50%);
+    flex-shrink: 0;
+}
+.arb-accordion.arb-icon-left .arb-acc-header--full .arb-acc-icon {
+    left: 20px;
+    right: auto;
+}

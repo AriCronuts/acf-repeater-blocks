@@ -15,7 +15,12 @@ class ARB_Widget extends \Elementor\Widget_Base {
     public function get_icon(): string  { return 'eicon-loop-builder'; }
     public function get_categories(): array { return [ 'arb' ]; }
     public function get_keywords(): array {
-        return [ 'acf', 'repeater', 'group', 'dynamic', 'loop', 'custom fields' ];
+        return [ 'acf', 'repeater', 'group', 'dynamic', 'loop', 'custom fields', 'accordion', 'faq' ];
+    }
+
+    public function get_script_depends(): array {
+        $settings = $this->get_settings();
+        return ( ( $settings['skin'] ?? 'grid' ) === 'accordion' ) ? [ 'arb-accordion' ] : [];
     }
 
     // =========================================================================
@@ -61,8 +66,9 @@ class ARB_Widget extends \Elementor\Widget_Base {
 
         // ── SECCIÓN: Modo y contenido ─────────────────────────────────────────
         $this->start_controls_section( 'sec_mode', [
-            'label' => '⚙️ Modo y contenido',
-            'tab'   => Controls_Manager::TAB_CONTENT,
+            'label'     => '⚙️ Modo y contenido',
+            'tab'       => Controls_Manager::TAB_CONTENT,
+            'condition' => [ 'skin!' => 'accordion' ],
         ] );
 
         $this->add_control( 'display_mode', [
@@ -290,10 +296,11 @@ class ARB_Widget extends \Elementor\Widget_Base {
             'type'    => Controls_Manager::SELECT,
             'default' => 'grid',
             'options' => [
-                'grid'  => 'Grid',
-                'list'  => 'Lista',
-                'table' => 'Tabla',
-                'text'  => 'Texto inline',
+                'grid'      => 'Grid',
+                'list'      => 'Lista',
+                'table'     => 'Tabla',
+                'text'      => 'Texto inline',
+                'accordion' => '🪗 Acordeón',
             ],
         ] );
 
@@ -314,7 +321,7 @@ class ARB_Widget extends \Elementor\Widget_Base {
             'size_units' => [ 'px', 'em' ],
             'range'      => [ 'px' => [ 'min' => 0, 'max' => 100 ] ],
             'default'    => [ 'unit' => 'px', 'size' => 24 ],
-            'condition'  => [ 'skin!' => 'text' ],
+            'condition'  => [ 'skin' => [ 'grid', 'list' ] ],
             'selectors'  => [
                 '{{WRAPPER}} .arb-grid' => 'gap: {{SIZE}}{{UNIT}};',
                 '{{WRAPPER}} .arb-list' => 'gap: {{SIZE}}{{UNIT}};',
@@ -326,6 +333,138 @@ class ARB_Widget extends \Elementor\Widget_Base {
             'type'      => Controls_Manager::TEXT,
             'default'   => ', ',
             'condition' => [ 'skin' => 'text' ],
+        ] );
+
+        $this->end_controls_section();
+
+        // ── SECCIÓN: Acordeón — Configuración ────────────────────────────────
+        $this->start_controls_section( 'sec_accordion', [
+            'label'     => '🪗 Acordeón',
+            'tab'       => Controls_Manager::TAB_CONTENT,
+            'condition' => [ 'skin' => 'accordion' ],
+        ] );
+
+        $this->add_control( 'acc_question_field', [
+            'label'   => 'Sub-campo Pregunta',
+            'type'    => Controls_Manager::SELECT,
+            'options' => ARB_ACF_Helpers::get_sub_field_options(),
+        ] );
+
+        $this->add_control( 'acc_answer_field', [
+            'label'   => 'Sub-campo Respuesta',
+            'type'    => Controls_Manager::SELECT,
+            'options' => ARB_ACF_Helpers::get_sub_field_options(),
+        ] );
+
+        $this->add_control( 'acc_image_field', [
+            'label'       => 'Sub-campo Imagen (opcional)',
+            'type'        => Controls_Manager::SELECT,
+            'options'     => ARB_ACF_Helpers::get_sub_field_options(),
+            'description' => 'Déjalo vacío si no quieres imagen.',
+        ] );
+
+        $this->add_control( 'acc_columns', [
+            'label'     => 'Columnas',
+            'type'      => Controls_Manager::SELECT,
+            'default'   => '1',
+            'options'   => [ '1' => '1 columna', '2' => '2 columnas' ],
+            'separator' => 'before',
+        ] );
+
+        $this->add_control( 'acc_column_gap', [
+            'label'      => 'Espacio entre columnas',
+            'type'       => Controls_Manager::SLIDER,
+            'size_units' => [ 'px', 'em' ],
+            'range'      => [ 'px' => [ 'min' => 0, 'max' => 80 ] ],
+            'default'    => [ 'unit' => 'px', 'size' => 24 ],
+            'condition'  => [ 'acc_columns' => '2' ],
+            'selectors'  => [ '{{WRAPPER}} .arb-accordion' => 'column-gap: {{SIZE}}{{UNIT}};' ],
+        ] );
+
+        $this->add_control( 'acc_row_gap', [
+            'label'      => 'Espacio entre filas',
+            'type'       => Controls_Manager::SLIDER,
+            'size_units' => [ 'px', 'em' ],
+            'range'      => [ 'px' => [ 'min' => 0, 'max' => 60 ] ],
+            'default'    => [ 'unit' => 'px', 'size' => 12 ],
+            'selectors'  => [ '{{WRAPPER}} .arb-accordion' => 'row-gap: {{SIZE}}{{UNIT}};' ],
+        ] );
+
+        $this->add_control( 'acc_close_others', [
+            'label'        => 'Cerrar otros al abrir uno',
+            'type'         => Controls_Manager::SWITCHER,
+            'label_on'     => 'Sí',
+            'label_off'    => 'No',
+            'return_value' => '1',
+            'default'      => '',
+            'separator'    => 'before',
+        ] );
+
+        $this->add_control( 'acc_header_title_align', [
+            'label'     => 'Alineación del título',
+            'type'      => Controls_Manager::CHOOSE,
+            'default'   => 'left',
+            'toggle'    => false,
+            'separator' => 'before',
+            'options'   => [
+                'left'   => [ 'title' => 'Izquierda',     'icon' => 'eicon-text-align-left'    ],
+                'center' => [ 'title' => 'Centro',         'icon' => 'eicon-text-align-center'  ],
+                'right'  => [ 'title' => 'Derecha',        'icon' => 'eicon-text-align-right'   ],
+                'full'   => [ 'title' => 'Ancho completo', 'icon' => 'eicon-text-align-justify' ],
+            ],
+            'description' => 'Con "Ancho completo" el título ocupa todo y los iconos quedan fijos en el borde.',
+        ] );
+
+        $this->add_control( 'acc_faq_schema', [
+            'label'        => 'Preguntas frecuentes (FAQ Schema)',
+            'type'         => Controls_Manager::SWITCHER,
+            'label_on'     => 'Sí',
+            'label_off'    => 'No',
+            'return_value' => '1',
+            'default'      => '',
+            'separator'    => 'before',
+            'description'  => 'Añade JSON-LD FAQPage para resultados enriquecidos en Google.',
+        ] );
+
+        $this->add_control( 'acc_no_results', [
+            'label'     => 'Texto si no hay resultados',
+            'type'      => Controls_Manager::TEXT,
+            'separator' => 'before',
+        ] );
+
+        $this->end_controls_section();
+
+        // ── SECCIÓN: Acordeón — Iconos ────────────────────────────────────────
+        $this->start_controls_section( 'sec_acc_icons', [
+            'label'     => '🔣 Iconos del acordeón',
+            'tab'       => Controls_Manager::TAB_CONTENT,
+            'condition' => [ 'skin' => 'accordion' ],
+        ] );
+
+        $this->add_control( 'acc_icon_open_svg', [
+            'label'    => 'SVG estado cerrado (icono "abrir")',
+            'type'     => Controls_Manager::CODE,
+            'language' => 'html',
+            'rows'     => 4,
+            'default'  => '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>',
+        ] );
+
+        $this->add_control( 'acc_icon_close_svg', [
+            'label'    => 'SVG estado abierto (icono "cerrar")',
+            'type'     => Controls_Manager::CODE,
+            'language' => 'html',
+            'rows'     => 4,
+            'default'  => '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/></svg>',
+        ] );
+
+        $this->add_control( 'acc_icon_position', [
+            'label'   => 'Posición del icono',
+            'type'    => Controls_Manager::SELECT,
+            'default' => 'right',
+            'options' => [
+                'right' => 'Derecha',
+                'left'  => 'Izquierda',
+            ],
         ] );
 
         $this->end_controls_section();
@@ -367,11 +506,166 @@ class ARB_Widget extends \Elementor\Widget_Base {
 
         $this->end_controls_section();
 
+        // ── STYLE: Acordeón — Ítem ───────────────────────────────────────────
+        $this->start_controls_section( 'sec_acc_style_item', [
+            'label'     => 'Acordeón · Ítem',
+            'tab'       => Controls_Manager::TAB_STYLE,
+            'condition' => [ 'skin' => 'accordion' ],
+        ] );
+
+        $this->add_control( 'acc_item_bg', [
+            'label'     => 'Fondo',
+            'type'      => Controls_Manager::COLOR,
+            'global'    => [ 'active' => true ],
+            'selectors' => [ '{{WRAPPER}} .arb-acc-item' => 'background-color: {{VALUE}};' ],
+        ] );
+
+        $this->add_control( 'acc_item_bg_active', [
+            'label'     => 'Fondo cuando está abierto',
+            'type'      => Controls_Manager::COLOR,
+            'global'    => [ 'active' => true ],
+            'selectors' => [ '{{WRAPPER}} .arb-acc-item.is-open' => 'background-color: {{VALUE}};' ],
+        ] );
+
+        $this->add_control( 'acc_item_border_color', [
+            'label'     => 'Color de borde',
+            'type'      => Controls_Manager::COLOR,
+            'global'    => [ 'active' => true ],
+            'selectors' => [ '{{WRAPPER}} .arb-acc-item' => 'border-color: {{VALUE}};' ],
+        ] );
+
+        $this->add_control( 'acc_item_border_width', [
+            'label'      => 'Ancho de borde',
+            'type'       => Controls_Manager::SLIDER,
+            'size_units' => [ 'px' ],
+            'range'      => [ 'px' => [ 'min' => 0, 'max' => 10 ] ],
+            'selectors'  => [ '{{WRAPPER}} .arb-acc-item' => 'border-width: {{SIZE}}px; border-style: solid;' ],
+        ] );
+
+        $this->add_control( 'acc_item_border_radius', [
+            'label'      => 'Border radius',
+            'type'       => Controls_Manager::SLIDER,
+            'size_units' => [ 'px', '%' ],
+            'range'      => [ 'px' => [ 'min' => 0, 'max' => 60 ] ],
+            'selectors'  => [ '{{WRAPPER}} .arb-acc-item' => 'border-radius: {{SIZE}}{{UNIT}};' ],
+        ] );
+
+        $this->end_controls_section();
+
+        // ── STYLE: Acordeón — Cabecera ────────────────────────────────────────
+        $this->start_controls_section( 'sec_acc_style_header', [
+            'label'     => 'Acordeón · Cabecera',
+            'tab'       => Controls_Manager::TAB_STYLE,
+            'condition' => [ 'skin' => 'accordion' ],
+        ] );
+
+        $this->add_responsive_control( 'acc_header_padding', [
+            'label'      => 'Padding',
+            'type'       => Controls_Manager::DIMENSIONS,
+            'size_units' => [ 'px', 'em', '%' ],
+            'selectors'  => [ '{{WRAPPER}} .arb-acc-header' => 'padding: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};' ],
+        ] );
+
+        $this->add_control( 'acc_question_color', [
+            'label'     => 'Color pregunta',
+            'type'      => Controls_Manager::COLOR,
+            'global'    => [ 'active' => true ],
+            'selectors' => [ '{{WRAPPER}} .arb-acc-question' => 'color: {{VALUE}};' ],
+        ] );
+
+        $this->add_control( 'acc_question_color_active', [
+            'label'     => 'Color pregunta (abierto)',
+            'type'      => Controls_Manager::COLOR,
+            'global'    => [ 'active' => true ],
+            'selectors' => [ '{{WRAPPER}} .arb-acc-item.is-open .arb-acc-question' => 'color: {{VALUE}};' ],
+        ] );
+
+        $this->add_group_control( \Elementor\Group_Control_Typography::get_type(), [
+            'name'     => 'acc_question_typography',
+            'selector' => '{{WRAPPER}} .arb-acc-question',
+        ] );
+
+        $this->end_controls_section();
+
+        // ── STYLE: Acordeón — Contenido ───────────────────────────────────────
+        $this->start_controls_section( 'sec_acc_style_content', [
+            'label'     => 'Acordeón · Contenido',
+            'tab'       => Controls_Manager::TAB_STYLE,
+            'condition' => [ 'skin' => 'accordion' ],
+        ] );
+
+        $this->add_responsive_control( 'acc_content_padding', [
+            'label'      => 'Padding',
+            'type'       => Controls_Manager::DIMENSIONS,
+            'size_units' => [ 'px', 'em', '%' ],
+            'selectors'  => [ '{{WRAPPER}} .arb-acc-content' => 'padding: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};' ],
+        ] );
+
+        $this->add_control( 'acc_content_bg', [
+            'label'     => 'Fondo del cuerpo',
+            'type'      => Controls_Manager::COLOR,
+            'global'    => [ 'active' => true ],
+            'selectors' => [ '{{WRAPPER}} .arb-acc-body' => 'background-color: {{VALUE}};' ],
+        ] );
+
+        $this->add_control( 'acc_content_color', [
+            'label'     => 'Color de texto',
+            'type'      => Controls_Manager::COLOR,
+            'global'    => [ 'active' => true ],
+            'selectors' => [ '{{WRAPPER}} .arb-acc-content' => 'color: {{VALUE}};' ],
+        ] );
+
+        $this->add_group_control( \Elementor\Group_Control_Typography::get_type(), [
+            'name'     => 'acc_content_typography',
+            'selector' => '{{WRAPPER}} .arb-acc-content',
+        ] );
+
+        $this->add_control( 'acc_image_max_width', [
+            'label'      => 'Ancho máximo imagen',
+            'type'       => Controls_Manager::SLIDER,
+            'size_units' => [ '%', 'px' ],
+            'range'      => [ '%' => [ 'min' => 10, 'max' => 100 ], 'px' => [ 'min' => 50, 'max' => 800 ] ],
+            'default'    => [ 'unit' => '%', 'size' => 100 ],
+            'selectors'  => [ '{{WRAPPER}} .arb-acc-content img' => 'max-width: {{SIZE}}{{UNIT}};' ],
+        ] );
+
+        $this->end_controls_section();
+
+        // ── STYLE: Acordeón — Icono ───────────────────────────────────────────
+        $this->start_controls_section( 'sec_acc_style_icon', [
+            'label'     => 'Acordeón · Icono',
+            'tab'       => Controls_Manager::TAB_STYLE,
+            'condition' => [ 'skin' => 'accordion' ],
+        ] );
+
+        $this->add_control( 'acc_icon_size', [
+            'label'      => 'Tamaño',
+            'type'       => Controls_Manager::SLIDER,
+            'size_units' => [ 'px' ],
+            'range'      => [ 'px' => [ 'min' => 10, 'max' => 80 ] ],
+            'default'    => [ 'unit' => 'px', 'size' => 20 ],
+            'selectors'  => [ '{{WRAPPER}} .arb-acc-icon svg' => 'width: {{SIZE}}{{UNIT}}; height: {{SIZE}}{{UNIT}};' ],
+        ] );
+
+        $this->add_control( 'acc_icon_color', [
+            'label'     => 'Color del icono',
+            'type'      => Controls_Manager::COLOR,
+            'global'    => [ 'active' => true ],
+            'selectors' => [
+                '{{WRAPPER}} .arb-acc-icon svg'        => 'color: {{VALUE}}; stroke: {{VALUE}};',
+                '{{WRAPPER}} .arb-acc-icon svg path'   => 'fill: {{VALUE}}; stroke: {{VALUE}};',
+                '{{WRAPPER}} .arb-acc-icon svg line'   => 'stroke: {{VALUE}};',
+                '{{WRAPPER}} .arb-acc-icon svg circle' => 'stroke: {{VALUE}};',
+            ],
+        ] );
+
+        $this->end_controls_section();
+
         // ── SECCIÓN: Estilo ítem ──────────────────────────────────────────────
         $this->start_controls_section( 'sec_style_item', [
             'label'     => 'Ítem contenedor',
             'tab'       => Controls_Manager::TAB_STYLE,
-            'condition' => [ 'skin!' => 'text' ],
+            'condition' => [ 'skin' => [ 'grid', 'list', 'table' ] ],
         ] );
 
         $this->add_responsive_control( 'item_padding', [
@@ -430,9 +724,14 @@ class ARB_Widget extends \Elementor\Widget_Base {
         $post_id = ARB_ACF_Helpers::resolve_post_id( $s['acf_from'] ?? 'current_post', $s['acf_custom_post_id'] ?? null );
         $rows    = get_field( $field, $post_id );
 
+        $skin = $s['skin'] ?? 'grid';
+
         if ( empty( $rows ) || ! is_array( $rows ) ) {
-            if ( ! empty( $s['no_results'] ) ) {
-                echo '<p class="arb-no-results">' . esc_html( $s['no_results'] ) . '</p>';
+            $no_results_text = ( $skin === 'accordion' )
+                ? ( $s['acc_no_results'] ?? '' )
+                : ( $s['no_results']     ?? '' );
+            if ( ! empty( $no_results_text ) ) {
+                echo '<p class="arb-no-results">' . esc_html( $no_results_text ) . '</p>';
             } elseif ( \Elementor\Plugin::$instance->editor->is_edit_mode() ) {
                 $this->placeholder( 'El campo "' . esc_html( $field ) . '" no tiene filas en este post.' );
             }
@@ -459,7 +758,12 @@ class ARB_Widget extends \Elementor\Widget_Base {
         $total = count( $rows );
         if ( ! $total ) return;
 
-        $skin = $s['skin'] ?? 'grid';
+        // Modo acordeón: render independiente
+        if ( $skin === 'accordion' ) {
+            $this->render_accordion( $s, $rows );
+            return;
+        }
+
         $mode = $s['display_mode'] ?? 'subfields';
 
         $this->open_skin( $skin );
@@ -644,6 +948,151 @@ class ARB_Widget extends \Elementor\Widget_Base {
                 if ( is_array($val) ) return esc_html( implode(', ', array_map('strval',$val)) );
                 return esc_html( (string)$val );
         }
+    }
+
+    // ── Render acordeón ───────────────────────────────────────────────────────
+
+    private function render_accordion( array $s, array $rows ): void {
+        $q_field      = ARB_ACF_Helpers::sanitize_field_name( $s['acc_question_field'] ?? '' );
+        $a_field      = ARB_ACF_Helpers::sanitize_field_name( $s['acc_answer_field']   ?? '' );
+        $img_field    = ARB_ACF_Helpers::sanitize_field_name( $s['acc_image_field']    ?? '' );
+        $columns      = in_array( $s['acc_columns'] ?? '1', [ '1', '2' ], true ) ? $s['acc_columns'] : '1';
+        $close_others = ! empty( $s['acc_close_others'] ) ? '1' : '0';
+        $icon_open    = $this->sanitize_svg( $s['acc_icon_open_svg']  ?? '' );
+        $icon_close   = $this->sanitize_svg( $s['acc_icon_close_svg'] ?? '' );
+        $icon_pos     = ( ( $s['acc_icon_position'] ?? 'right' ) === 'left' ) ? ' arb-icon-left' : '';
+        $title_align  = in_array( $s['acc_header_title_align'] ?? 'left', [ 'left', 'center', 'right', 'full' ], true )
+                        ? $s['acc_header_title_align'] : 'left';
+
+        $acc_class = 'arb-accordion' . ( $columns === '2' ? ' arb-accordion-cols-2' : '' ) . $icon_pos;
+
+        echo '<div class="' . esc_attr( $acc_class ) . '" data-close-others="' . esc_attr( $close_others ) . '">';
+
+        foreach ( $rows as $idx => $row ) {
+            $body_id  = 'arb-acc-body-' . esc_attr( $this->get_id() ) . '-' . $idx;
+            $question = '';
+            $answer   = '';
+            $img_html = '';
+
+            if ( $q_field && array_key_exists( $q_field, $row ) ) {
+                $v        = $row[ $q_field ];
+                $question = is_array( $v )
+                    ? esc_html( implode( ', ', array_map( 'strval', $v ) ) )
+                    : esc_html( (string) $v );
+            }
+
+            if ( $a_field && array_key_exists( $a_field, $row ) ) {
+                $v    = $row[ $a_field ];
+                $type = ARB_ACF_Helpers::get_sub_field_type( $a_field );
+                if ( is_array( $v ) ) {
+                    $answer = wp_kses_post( implode( ' ', array_map( 'strval', $v ) ) );
+                } elseif ( $type === 'wysiwyg' ) {
+                    $answer = wp_kses_post( wpautop( (string) $v ) );
+                } else {
+                    $answer = '<p>' . esc_html( (string) $v ) . '</p>';
+                }
+            }
+
+            if ( $img_field && array_key_exists( $img_field, $row ) ) {
+                $img_html = $this->acc_render_image( $row[ $img_field ] );
+            }
+
+            $header_class = 'arb-acc-header arb-acc-header--' . $title_align;
+
+            echo '<div class="arb-acc-item">';
+
+            echo '<button class="' . esc_attr( $header_class ) . '" '
+                . 'aria-expanded="false" '
+                . 'aria-controls="' . esc_attr( $body_id ) . '">';
+            echo '<span class="arb-acc-question">' . $question . '</span>';
+            echo '<span class="arb-acc-icon arb-acc-icon--open">'  . $icon_open  . '</span>';
+            echo '<span class="arb-acc-icon arb-acc-icon--close">' . $icon_close . '</span>';
+            echo '</button>';
+
+            echo '<div class="arb-acc-body" id="' . esc_attr( $body_id ) . '" hidden>';
+            echo '<div class="arb-acc-content">' . $answer . $img_html . '</div>';
+            echo '</div>';
+
+            echo '</div>';
+        }
+
+        echo '</div>';
+
+        if ( ! empty( $s['acc_faq_schema'] ) ) {
+            $this->acc_render_faq_schema( $rows, $q_field, $a_field );
+        }
+    }
+
+    private function acc_render_faq_schema( array $rows, string $q_field, string $a_field ): void {
+        $entities = [];
+        foreach ( $rows as $row ) {
+            $question = '';
+            $answer   = '';
+
+            if ( $q_field && array_key_exists( $q_field, $row ) ) {
+                $v        = $row[ $q_field ];
+                $question = wp_strip_all_tags( is_array( $v ) ? implode( ', ', array_map( 'strval', $v ) ) : (string) $v );
+            }
+
+            if ( $a_field && array_key_exists( $a_field, $row ) ) {
+                $v      = $row[ $a_field ];
+                $answer = wp_strip_all_tags( is_array( $v ) ? implode( ' ', array_map( 'strval', $v ) ) : (string) $v );
+            }
+
+            if ( ! $question || ! $answer ) continue;
+
+            $entities[] = [
+                '@type'          => 'Question',
+                'name'           => $question,
+                'acceptedAnswer' => [ '@type' => 'Answer', 'text' => $answer ],
+            ];
+        }
+
+        if ( empty( $entities ) ) return;
+
+        echo '<script type="application/ld+json">'
+            . wp_json_encode(
+                [ '@context' => 'https://schema.org', '@type' => 'FAQPage', 'mainEntity' => $entities ],
+                JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT
+            )
+            . '</script>';
+    }
+
+    private function acc_render_image( $val ): string {
+        if ( empty( $val ) ) return '';
+        if ( is_array( $val ) ) {
+            $src = $val['sizes']['large'] ?? $val['url'] ?? '';
+            $alt = esc_attr( $val['alt'] ?? '' );
+        } elseif ( is_numeric( $val ) ) {
+            $img = wp_get_attachment_image_src( (int) $val, 'large' );
+            $src = $img ? $img[0] : '';
+            $alt = esc_attr( get_post_meta( (int) $val, '_wp_attachment_image_alt', true ) );
+        } else {
+            $src = (string) $val;
+            $alt = '';
+        }
+        if ( ! $src ) return '';
+        return '<img src="' . esc_url( $src ) . '" alt="' . $alt . '" loading="lazy">';
+    }
+
+    private function sanitize_svg( string $raw ): string {
+        if ( ! $raw ) return '';
+        $allowed = [
+            'svg'      => [ 'xmlns' => true, 'width' => true, 'height' => true, 'viewbox' => true,
+                            'fill' => true, 'stroke' => true, 'stroke-width' => true,
+                            'stroke-linecap' => true, 'stroke-linejoin' => true,
+                            'aria-hidden' => true, 'role' => true, 'class' => true ],
+            'path'     => [ 'd' => true, 'fill' => true, 'stroke' => true, 'stroke-width' => true ],
+            'line'     => [ 'x1' => true, 'y1' => true, 'x2' => true, 'y2' => true,
+                            'stroke' => true, 'stroke-width' => true ],
+            'circle'   => [ 'cx' => true, 'cy' => true, 'r' => true, 'fill' => true, 'stroke' => true ],
+            'rect'     => [ 'x' => true, 'y' => true, 'width' => true, 'height' => true,
+                            'rx' => true, 'ry' => true, 'fill' => true, 'stroke' => true ],
+            'polyline' => [ 'points' => true, 'fill' => true, 'stroke' => true ],
+            'polygon'  => [ 'points' => true, 'fill' => true, 'stroke' => true ],
+            'g'        => [ 'fill' => true, 'stroke' => true, 'transform' => true ],
+        ];
+        return wp_kses( $raw, $allowed );
     }
 
     // ── Editor placeholder ────────────────────────────────────────────────────
