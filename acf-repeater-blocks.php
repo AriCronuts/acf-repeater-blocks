@@ -2,7 +2,7 @@
 /**
  * Plugin Name:  ACF Repeater for Elementor
  * Description:  Usa campos Repeater y Group de ACF Pro directamente en Elementor: modo Sub-campos, HTML con tokens y Plantilla.
- * Version:      1.0.3
+ * Version:      1.0.4
  * Author:       Cronuts Digital
  * Author URI:   https://cronuts.digital
  * License:      GPL-3.0-or-later
@@ -12,7 +12,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'ARB_VERSION', '1.0.3' );
+define( 'ARB_VERSION', '1.0.4' );
 define( 'ARB_DIR',     plugin_dir_path( __FILE__ ) );
 define( 'ARB_URL',     plugin_dir_url( __FILE__ ) );
 
@@ -53,6 +53,9 @@ add_action( 'plugins_loaded', function () {
         } );
         return;
     }
+
+    // ── Internacionalización ──────────────────────────────────────────────────
+    load_plugin_textdomain( 'arb', false, dirname( plugin_basename( __FILE__ ) ) . '/languages' );
 
     // ── ARB_ACF_Helpers: no extiende nada de Elementor → se carga ahora ───────
     require_once ARB_DIR . 'includes/class-arb-acf-helpers.php';
