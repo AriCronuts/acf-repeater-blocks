@@ -54,6 +54,9 @@ add_action( 'plugins_loaded', function () {
         return;
     }
 
+    // ── Internacionalización ──────────────────────────────────────────────────
+    load_plugin_textdomain( 'arb', false, dirname( plugin_basename( __FILE__ ) ) . '/languages' );
+
     // ── ARB_ACF_Helpers: no extiende nada de Elementor → se carga ahora ───────
     require_once ARB_DIR . 'includes/class-arb-acf-helpers.php';
 

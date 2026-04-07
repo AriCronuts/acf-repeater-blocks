@@ -6,13 +6,33 @@ defined( 'ABSPATH' ) || exit;
 
 class ARB_ACF_Helpers {
 
+    /** @var array|null Caché de todos los field groups con sus campos. */
+    private static ?array $_groups_cache = null;
+
+    /**
+     * Devuelve todos los field groups con sus campos, usando caché estático.
+     * Evita llamadas repetidas a acf_get_field_groups() + acf_get_fields()
+     * en una misma petición.
+     */
+    private static function get_all_groups_with_fields(): array {
+        if ( self::$_groups_cache !== null ) {
+            return self::$_groups_cache;
+        }
+        self::$_groups_cache = [];
+        foreach ( acf_get_field_groups() as $group ) {
+            $group['_fields']     = acf_get_fields( $group['key'] ) ?: [];
+            self::$_groups_cache[] = $group;
+        }
+        return self::$_groups_cache;
+    }
+
     /**
      * Devuelve [ 'nombre' => 'Grupo: Label (nombre)' ] de todos los repeaters/groups.
      */
     public static function get_repeater_options(): array {
         $options = [ '' => '— Selecciona un Repeater / Group —' ];
-        foreach ( acf_get_field_groups() as $group ) {
-            foreach ( acf_get_fields( $group['key'] ) ?: [] as $field ) {
+        foreach ( self::get_all_groups_with_fields() as $group ) {
+            foreach ( $group['_fields'] as $field ) {
                 if ( in_array( $field['type'], [ 'repeater', 'group' ], true ) ) {
                     $options[ $field['name'] ] = $group['title'] . ': ' . $field['label'] . ' (' . $field['name'] . ')';
                 }
@@ -28,8 +48,8 @@ class ARB_ACF_Helpers {
         $options = [ '' => '— Sub-campo —' ];
         if ( ! $field_name ) {
             // Devolver todos los sub-campos de todos los repeaters (para cuando aún no se ha elegido)
-            foreach ( acf_get_field_groups() as $group ) {
-                foreach ( acf_get_fields( $group['key'] ) ?: [] as $field ) {
+            foreach ( self::get_all_groups_with_fields() as $group ) {
+                foreach ( $group['_fields'] as $field ) {
                     if ( ! in_array( $field['type'], [ 'repeater', 'group' ], true ) ) continue;
                     foreach ( $field['sub_fields'] ?? [] as $sub ) {
                         $options[ $sub['name'] ] = $field['label'] . ' › ' . $sub['label'] . ' [' . $sub['type'] . ']';
@@ -40,8 +60,8 @@ class ARB_ACF_Helpers {
         }
 
         // Buscar el campo específico
-        foreach ( acf_get_field_groups() as $group ) {
-            foreach ( acf_get_fields( $group['key'] ) ?: [] as $field ) {
+        foreach ( self::get_all_groups_with_fields() as $group ) {
+            foreach ( $group['_fields'] as $field ) {
                 if ( $field['name'] === $field_name ) {
                     foreach ( $field['sub_fields'] ?? [] as $sub ) {
                         $options[ $sub['name'] ] = $sub['label'] . ' [' . $sub['type'] . ']';
@@ -57,8 +77,8 @@ class ARB_ACF_Helpers {
      * Devuelve el tipo ACF de un sub-campo (text, image, url, etc.)
      */
     public static function get_sub_field_type( string $sub_field_name ): string {
-        foreach ( acf_get_field_groups() as $group ) {
-            foreach ( acf_get_fields( $group['key'] ) ?: [] as $field ) {
+        foreach ( self::get_all_groups_with_fields() as $group ) {
+            foreach ( $group['_fields'] as $field ) {
                 foreach ( $field['sub_fields'] ?? [] as $sub ) {
                     if ( $sub['name'] === $sub_field_name ) {
                         return $sub['type'];

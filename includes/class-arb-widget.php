@@ -465,7 +465,7 @@ class ARB_Widget extends \Elementor\Widget_Base {
         $this->open_skin( $skin );
 
         foreach ( $rows as $idx => $row ) {
-            $this->open_item( $skin, $idx );
+            $this->open_item( $skin, $idx, $total );
 
             switch ( $mode ) {
                 case 'subfields': $this->render_subfields( $s, $row );          break;
@@ -534,6 +534,10 @@ class ARB_Widget extends \Elementor\Widget_Base {
 
         $tpl = preg_replace( '/\s+on\w+\s*=\s*["\'][^"\']*["\']/i', '', $tpl );
         $tpl = preg_replace( '/<script\b[^>]*>.*?<\/script>/is', '', $tpl );
+        // Neutraliza javascript: y data: en atributos href, src, action, formaction, xlink:href
+        $tpl = preg_replace( '/(href|src|action|formaction|xlink:href)\s*=\s*(["\'])\s*(?:javascript|data)\s*:/i', '$1=$2#', $tpl );
+        // Neutraliza javascript: y data: en url() de atributos style
+        $tpl = preg_replace( '/url\s*\(\s*["\']?\s*(?:javascript|data)\s*:/i', 'url(#', $tpl );
 
         $row['_index'] = $idx;
         $row['_count'] = $total;
@@ -580,8 +584,10 @@ class ARB_Widget extends \Elementor\Widget_Base {
         }
     }
 
-    private function open_item( string $skin, int $idx ): void {
-        $c = 'arb-item arb-item-' . $idx . ( $idx === 0 ? ' arb-item-first' : '' );
+    private function open_item( string $skin, int $idx, int $total = 0 ): void {
+        $c = 'arb-item arb-item-' . $idx;
+        if ( $idx === 0 )                       $c .= ' arb-item-first';
+        if ( $total > 0 && $idx === $total - 1 ) $c .= ' arb-item-last';
         switch ( $skin ) {
             case 'grid':  echo '<div class="' . esc_attr($c) . '">'; break;
             case 'list':  echo '<li class="'  . esc_attr($c) . '">'; break;
@@ -632,7 +638,7 @@ class ARB_Widget extends \Elementor\Widget_Base {
                 return esc_url( is_array($val) ? ($val['url']??'') : (string)$val );
 
             case 'true_false':
-                return $val ? 'Sí' : 'No';
+                return $val ? esc_html__( 'Sí', 'arb' ) : esc_html__( 'No', 'arb' );
 
             default:
                 if ( is_array($val) ) return esc_html( implode(', ', array_map('strval',$val)) );
