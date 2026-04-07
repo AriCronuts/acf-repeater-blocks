@@ -395,7 +395,7 @@ class ARB_Widget extends \Elementor\Widget_Base {
             'range'      => [ 'px' => [ 'min' => 0, 'max' => 80 ] ],
             'default'    => [ 'unit' => 'px', 'size' => 24 ],
             'condition'  => [ 'acc_columns' => '2' ],
-            'selectors'  => [ '{{WRAPPER}} .arb-accordion' => 'column-gap: {{SIZE}}{{UNIT}};' ],
+            'selectors'  => [ '{{WRAPPER}} .arb-accordion.arb-accordion-cols-2' => 'gap: {{SIZE}}{{UNIT}};' ],
         ] );
 
         $this->add_control( 'acc_row_gap', [
@@ -404,7 +404,10 @@ class ARB_Widget extends \Elementor\Widget_Base {
             'size_units' => [ 'px', 'em' ],
             'range'      => [ 'px' => [ 'min' => 0, 'max' => 60 ] ],
             'default'    => [ 'unit' => 'px', 'size' => 12 ],
-            'selectors'  => [ '{{WRAPPER}} .arb-accordion' => 'row-gap: {{SIZE}}{{UNIT}};' ],
+            'selectors'  => [
+                '{{WRAPPER}} .arb-accordion:not(.arb-accordion-cols-2)' => 'gap: {{SIZE}}{{UNIT}};',
+                '{{WRAPPER}} .arb-acc-col'                              => 'gap: {{SIZE}}{{UNIT}};',
+            ],
         ] );
 
         $this->add_control( 'acc_close_others', [
@@ -673,6 +676,18 @@ class ARB_Widget extends \Elementor\Widget_Base {
                 '{{WRAPPER}} .arb-acc-icon svg path'   => 'fill: {{VALUE}}; stroke: {{VALUE}};',
                 '{{WRAPPER}} .arb-acc-icon svg line'   => 'stroke: {{VALUE}};',
                 '{{WRAPPER}} .arb-acc-icon svg circle' => 'stroke: {{VALUE}};',
+            ],
+        ] );
+
+        $this->add_control( 'acc_icon_color_active', [
+            'label'     => 'Color del icono (abierto)',
+            'type'      => Controls_Manager::COLOR,
+            'global'    => [ 'active' => true ],
+            'selectors' => [
+                '{{WRAPPER}} .arb-acc-item.is-open .arb-acc-icon svg'        => 'color: {{VALUE}}; stroke: {{VALUE}};',
+                '{{WRAPPER}} .arb-acc-item.is-open .arb-acc-icon svg path'   => 'fill: {{VALUE}}; stroke: {{VALUE}};',
+                '{{WRAPPER}} .arb-acc-item.is-open .arb-acc-icon svg line'   => 'stroke: {{VALUE}};',
+                '{{WRAPPER}} .arb-acc-item.is-open .arb-acc-icon svg circle' => 'stroke: {{VALUE}};',
             ],
         ] );
 
@@ -1000,52 +1015,28 @@ class ARB_Widget extends \Elementor\Widget_Base {
 
         echo '<div class="' . esc_attr( $acc_class ) . '" data-close-others="' . esc_attr( $close_others ) . '">';
 
-        foreach ( $rows as $idx => $row ) {
-            $body_id  = 'arb-acc-body-' . esc_attr( $this->get_id() ) . '-' . $idx;
-            $question = '';
-            $answer   = '';
-            $img_html = '';
-
-            if ( $q_field && array_key_exists( $q_field, $row ) ) {
-                $v        = $row[ $q_field ];
-                $question = is_array( $v )
-                    ? esc_html( implode( ', ', array_map( 'strval', $v ) ) )
-                    : esc_html( (string) $v );
+        if ( $columns === '2' ) {
+            // Dos columnas flex independientes: ítems pares a col1, impares a col2
+            $col1 = [];
+            $col2 = [];
+            foreach ( $rows as $idx => $row ) {
+                if ( $idx % 2 === 0 ) $col1[] = [ 'idx' => $idx, 'row' => $row ];
+                else                   $col2[] = [ 'idx' => $idx, 'row' => $row ];
             }
-
-            if ( $a_field && array_key_exists( $a_field, $row ) ) {
-                $v    = $row[ $a_field ];
-                $type = ARB_ACF_Helpers::get_sub_field_type( $a_field );
-                if ( is_array( $v ) ) {
-                    $answer = wp_kses_post( implode( ' ', array_map( 'strval', $v ) ) );
-                } elseif ( $type === 'wysiwyg' ) {
-                    $answer = wp_kses_post( wpautop( (string) $v ) );
-                } else {
-                    $answer = '<p>' . esc_html( (string) $v ) . '</p>';
-                }
+            echo '<div class="arb-acc-col">';
+            foreach ( $col1 as $item ) {
+                $this->render_accordion_item( $item['idx'], $item['row'], $q_field, $a_field, $img_field, $icon_open, $icon_close, $title_align );
             }
-
-            if ( $img_field && array_key_exists( $img_field, $row ) ) {
-                $img_html = $this->acc_render_image( $row[ $img_field ] );
-            }
-
-            $header_class = 'arb-acc-header arb-acc-header--' . $title_align;
-
-            echo '<div class="arb-acc-item">';
-
-            echo '<button class="' . esc_attr( $header_class ) . '" '
-                . 'aria-expanded="false" '
-                . 'aria-controls="' . esc_attr( $body_id ) . '">';
-            echo '<span class="arb-acc-question">' . $question . '</span>';
-            echo '<span class="arb-acc-icon arb-acc-icon--open">'  . $icon_open  . '</span>';
-            echo '<span class="arb-acc-icon arb-acc-icon--close">' . $icon_close . '</span>';
-            echo '</button>';
-
-            echo '<div class="arb-acc-body" id="' . esc_attr( $body_id ) . '" hidden>';
-            echo '<div class="arb-acc-content">' . $answer . $img_html . '</div>';
             echo '</div>';
-
+            echo '<div class="arb-acc-col">';
+            foreach ( $col2 as $item ) {
+                $this->render_accordion_item( $item['idx'], $item['row'], $q_field, $a_field, $img_field, $icon_open, $icon_close, $title_align );
+            }
             echo '</div>';
+        } else {
+            foreach ( $rows as $idx => $row ) {
+                $this->render_accordion_item( $idx, $row, $q_field, $a_field, $img_field, $icon_open, $icon_close, $title_align );
+            }
         }
 
         echo '</div>';
@@ -1053,6 +1044,49 @@ class ARB_Widget extends \Elementor\Widget_Base {
         if ( ! empty( $s['acc_faq_schema'] ) ) {
             $this->acc_render_faq_schema( $rows, $q_field, $a_field );
         }
+    }
+
+    private function render_accordion_item( int $idx, array $row, string $q_field, string $a_field, string $img_field, string $icon_open, string $icon_close, string $title_align ): void {
+        $body_id  = 'arb-acc-body-' . esc_attr( $this->get_id() ) . '-' . $idx;
+        $question = '';
+        $answer   = '';
+        $img_html = '';
+
+        if ( $q_field && array_key_exists( $q_field, $row ) ) {
+            $v        = $row[ $q_field ];
+            $question = is_array( $v )
+                ? esc_html( implode( ', ', array_map( 'strval', $v ) ) )
+                : esc_html( (string) $v );
+        }
+
+        if ( $a_field && array_key_exists( $a_field, $row ) ) {
+            $v    = $row[ $a_field ];
+            $type = ARB_ACF_Helpers::get_sub_field_type( $a_field );
+            if ( is_array( $v ) ) {
+                $answer = wp_kses_post( implode( ' ', array_map( 'strval', $v ) ) );
+            } elseif ( $type === 'wysiwyg' ) {
+                $answer = wp_kses_post( wpautop( (string) $v ) );
+            } else {
+                $answer = '<p>' . esc_html( (string) $v ) . '</p>';
+            }
+        }
+
+        if ( $img_field && array_key_exists( $img_field, $row ) ) {
+            $img_html = $this->acc_render_image( $row[ $img_field ] );
+        }
+
+        $header_class = 'arb-acc-header arb-acc-header--' . $title_align;
+
+        echo '<div class="arb-acc-item">';
+        echo '<button class="' . esc_attr( $header_class ) . '" aria-expanded="false" aria-controls="' . esc_attr( $body_id ) . '">';
+        echo '<span class="arb-acc-question">' . $question . '</span>';
+        echo '<span class="arb-acc-icon arb-acc-icon--open">'  . $icon_open  . '</span>';
+        echo '<span class="arb-acc-icon arb-acc-icon--close">' . $icon_close . '</span>';
+        echo '</button>';
+        echo '<div class="arb-acc-body" id="' . esc_attr( $body_id ) . '" hidden>';
+        echo '<div class="arb-acc-content">' . $answer . $img_html . '</div>';
+        echo '</div>';
+        echo '</div>';
     }
 
     private function acc_render_faq_schema( array $rows, string $q_field, string $a_field ): void {
