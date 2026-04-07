@@ -91,6 +91,9 @@
 
 .arb-acc-body {
     overflow: hidden;
+    max-height: 0;
+    opacity: 0;
+    transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
 }
 
 .arb-acc-content {
@@ -127,17 +130,26 @@
     }
 }
 
+/* ── Neutralizar hover de button que inyecta Elementor ─────────────────── */
+
+.arb-acc-header:hover {
+    background-color: inherit;
+    color: inherit;
+    text-decoration: none;
+}
+
 /* ── Alineación del título ─────────────────────────────────────────────── */
 
 .arb-acc-header--center .arb-acc-question { text-align: center; }
 .arb-acc-header--right  .arb-acc-question { text-align: right; }
 
-/* Ancho completo: título ocupa todo, icono fijo en el borde */
+/* Ancho completo: título centrado, icono fijo en el borde */
 .arb-acc-header--full {
     position: relative;
+    justify-content: center;
 }
 .arb-acc-header--full .arb-acc-question {
-    width: 100%;
+    flex: 0 0 100%;
     text-align: center;
 }
 .arb-acc-header--full .arb-acc-icon {
@@ -145,7 +157,6 @@
     top: 50%;
     right: 20px;
     transform: translateY(-50%);
-    flex-shrink: 0;
 }
 .arb-accordion.arb-icon-left .arb-acc-header--full .arb-acc-icon {
     left: 20px;
