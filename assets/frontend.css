@@ -149,13 +149,26 @@
     }
 }
 
-/* ── Neutralizar hover/focus de button que inyecta Elementor ───────────── */
+/* ── Neutralizar hover/focus/active de button que inyecta Elementor ───────── */
 
+.arb-acc-header,
 .arb-acc-header:hover,
-.arb-acc-header:focus {
-    background-color: inherit;
+.arb-acc-header:focus,
+.arb-acc-header:active,
+.arb-acc-header:focus-visible {
+    background-color: transparent;
     color: inherit;
     text-decoration: none;
+    border-radius: 0;
+    box-shadow: none;
+    outline: none;
+    padding: 16px 20px;
+    /* Evitar que Elementor kit rompa el layout del botón */
+    display: flex;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    white-space: normal;
 }
 
 /* ── Alineación del título ─────────────────────────────────────────────── */
