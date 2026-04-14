@@ -150,12 +150,16 @@
 }
 
 /* ── Neutralizar hover/focus/active de button que inyecta Elementor ───────── */
+/*
+ * Especificidad deliberada: .arb-accordion .arb-acc-header = (0,2,0)
+ * supera a .elementor-kit-10 button = (0,1,1) en todos los estados.
+ */
 
-.arb-acc-header,
-.arb-acc-header:hover,
-.arb-acc-header:focus,
-.arb-acc-header:active,
-.arb-acc-header:focus-visible {
+.arb-accordion .arb-acc-header,
+.arb-accordion .arb-acc-header:hover,
+.arb-accordion .arb-acc-header:focus,
+.arb-accordion .arb-acc-header:active,
+.arb-accordion .arb-acc-header:focus-visible {
     background-color: transparent;
     color: inherit;
     text-decoration: none;
@@ -163,12 +167,12 @@
     box-shadow: none;
     outline: none;
     padding: 16px 20px;
-    /* Evitar que Elementor kit rompa el layout del botón */
     display: flex;
     width: 100%;
     max-width: 100%;
     box-sizing: border-box;
     white-space: normal;
+    transition: none;
 }
 
 /* ── Alineación del título ─────────────────────────────────────────────── */
