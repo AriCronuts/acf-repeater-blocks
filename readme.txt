@@ -4,7 +4,7 @@ Tags: acf, elementor, repeater, advanced custom fields
 Requires at least: 5.9
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 1.2.5
+Stable tag: 1.2.6
 License: GPL-3.0-or-later
 
 Muestra campos Repeater y Group de ACF Pro directamente en Elementor, sin código.
