@@ -1119,7 +1119,7 @@ class ARB_Widget extends \Elementor\Widget_Base {
         echo '<script type="application/ld+json">'
             . wp_json_encode(
                 [ '@context' => 'https://schema.org', '@type' => 'FAQPage', 'mainEntity' => $entities ],
-                JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT
+                JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT | JSON_HEX_TAG
             )
             . '</script>';
     }
