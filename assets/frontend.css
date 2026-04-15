@@ -1,5 +1,28 @@
 /* ACF Repeater for Elementor — Frontend */
 
+/* ── Design tokens ──────────────────────────────────────────────────────── */
+
+:root {
+    /* Colors */
+    --arb-border-color:    #e5e7eb;
+    --arb-bg-table-header: #f9fafb;
+    --arb-bg-card:         #fff;
+    --arb-text-muted:      #6b7280;
+
+    /* Shape & spacing */
+    --arb-radius:          8px;
+    --arb-gap-items:       8px;     /* vertical gap between accordion items */
+    --arb-gap-cols:        16px;    /* horizontal gap between 2-col accordion columns */
+    --arb-padding-acc:     16px 20px; /* accordion header padding (also used in Elementor reset) */
+    --arb-padding-body:    20px;    /* accordion body content padding */
+    --arb-icon-gap:        12px;    /* gap between toggle icon and title text */
+
+    /* Motion */
+    --arb-transition-acc:
+        max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+        opacity    0.3s ease;
+}
+
 .arb-grid {
     display: grid;
     gap: 24px;
@@ -23,13 +46,14 @@
 .arb-table th,
 .arb-table td {
     padding: 10px 14px;
-    border: 1px solid #e5e7eb;
+    border: 1px solid var(--arb-border-color);
     text-align: left;
     vertical-align: top;
+    overflow-wrap: break-word;
 }
 
 .arb-table thead th {
-    background: #f9fafb;
+    background: var(--arb-bg-table-header);
     font-weight: 600;
 }
 
@@ -47,8 +71,11 @@
 }
 
 .arb-no-results {
-    color: #6b7280;
+    display: block;
+    padding: 16px var(--arb-padding-body);
+    color: var(--arb-text-muted);
     font-style: italic;
+    text-align: center;
 }
 
 /* Los breakpoints responsive del grid se generan por Elementor según la configuración del widget */
@@ -58,26 +85,29 @@
 .arb-accordion {
     display: flex;
     flex-direction: column;
+    gap: var(--arb-gap-items);
 }
 
 .arb-accordion.arb-accordion-cols-2 {
     display: flex;
     flex-direction: row;
     align-items: flex-start;
+    gap: var(--arb-gap-cols);
 }
 
 .arb-acc-col {
     flex: 1;
     display: flex;
     flex-direction: column;
+    gap: var(--arb-gap-items);
     min-width: 0;
 }
 
 .arb-acc-item {
-    border: 1px solid #e5e7eb;
-    border-radius: 8px;
+    border: 1px solid var(--arb-border-color);
+    border-radius: var(--arb-radius);
     overflow: hidden;
-    background: #fff;
+    background: var(--arb-bg-card);
     min-width: 0;
 }
 
@@ -86,12 +116,12 @@
     justify-content: space-between;
     align-items: center;
     width: 100%;
-    padding: 16px 20px;
+    padding: var(--arb-padding-acc);
     background: none;
     border: none;
     cursor: pointer;
     text-align: left;
-    gap: 12px;
+    gap: var(--arb-icon-gap);
 }
 
 .arb-acc-question {
@@ -99,6 +129,7 @@
     min-width: 0;
     word-break: break-word;
     overflow-wrap: break-word;
+    line-height: 1.5;
 }
 
 .arb-acc-icon {
@@ -109,18 +140,18 @@
     overflow: hidden;
     max-height: 0;
     opacity: 0;
-    transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
+    transition: var(--arb-transition-acc);
 }
 
 .arb-acc-content {
-    padding: 0 20px 20px;
+    padding: 0 var(--arb-padding-body) var(--arb-padding-body);
 }
 
 .arb-acc-content img {
     display: block;
     max-width: 100%;
     height: auto;
-    margin-top: 12px;
+    margin-top: var(--arb-icon-gap);
 }
 
 .arb-acc-icon--close {
@@ -166,13 +197,20 @@
     border-radius: 0;
     box-shadow: none;
     outline: none;
-    padding: 16px 20px;
+    padding: var(--arb-padding-acc);
     display: flex;
     width: 100%;
     max-width: 100%;
     box-sizing: border-box;
     white-space: normal;
     transition: none;
+}
+
+/* Restore accessible keyboard focus indicator (same specificity as reset above,
+ * placed after so it wins via source order — WCAG 2.4.7). */
+.arb-accordion .arb-acc-header:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: -2px;
 }
 
 /* ── Alineación del título ─────────────────────────────────────────────── */
