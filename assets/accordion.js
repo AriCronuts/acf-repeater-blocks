@@ -10,7 +10,8 @@
 
             accordion.querySelectorAll( '.arb-acc-header' ).forEach( function ( btn ) {
                 btn.addEventListener( 'click', function () {
-                    var item        = btn.closest( '.arb-acc-item' );
+                    var item = btn.closest( '.arb-acc-item' );
+                    if ( ! item ) return;
                     var isOpen      = item.classList.contains( 'is-open' );
                     var closeOthers = accordion.dataset.closeOthers === '1';
 
@@ -30,6 +31,7 @@
     function openItem( item ) {
         var body   = item.querySelector( '.arb-acc-body' );
         var header = item.querySelector( '.arb-acc-header' );
+        if ( ! body || ! header ) return;
 
         body.removeAttribute( 'hidden' );
         body.style.maxHeight = '0';
@@ -47,6 +49,7 @@
     function closeItem( item ) {
         var body   = item.querySelector( '.arb-acc-body' );
         var header = item.querySelector( '.arb-acc-header' );
+        if ( ! body || ! header ) return;
 
         // Fija la altura actual antes de animar a 0
         body.style.maxHeight = body.scrollHeight + 'px';
@@ -74,7 +77,7 @@
 
     if ( window.elementorFrontend ) {
         window.elementorFrontend.hooks.addAction(
-            'frontend/element_ready/arb-acf-repeater/default',
+            'frontend/element_ready/arb-accordion/default',
             function ( $scope ) {
                 initAccordion( $scope[0] || $scope );
             }

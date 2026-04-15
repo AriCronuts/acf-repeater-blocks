@@ -158,8 +158,7 @@
 .arb-accordion .arb-acc-header,
 .arb-accordion .arb-acc-header:hover,
 .arb-accordion .arb-acc-header:focus,
-.arb-accordion .arb-acc-header:active,
-.arb-accordion .arb-acc-header:focus-visible {
+.arb-accordion .arb-acc-header:active {
     background-color: transparent;
     color: inherit;
     text-decoration: none;
@@ -173,6 +172,12 @@
     box-sizing: border-box;
     white-space: normal;
     transition: none;
+}
+
+/* Keyboard focus ring — must NOT be suppressed */
+.arb-accordion .arb-acc-header:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: -2px;
 }
 
 /* ── Alineación del título ─────────────────────────────────────────────── */
