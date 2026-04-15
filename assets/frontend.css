@@ -189,8 +189,7 @@
 .arb-accordion .arb-acc-header,
 .arb-accordion .arb-acc-header:hover,
 .arb-accordion .arb-acc-header:focus,
-.arb-accordion .arb-acc-header:active,
-.arb-accordion .arb-acc-header:focus-visible {
+.arb-accordion .arb-acc-header:active {
     background-color: transparent;
     color: inherit;
     text-decoration: none;

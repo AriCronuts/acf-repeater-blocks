@@ -402,8 +402,8 @@ class ARB_Accordion_Widget extends \Elementor\Widget_Base {
                 . 'aria-expanded="false" '
                 . 'aria-controls="' . esc_attr( $body_id ) . '">';
             echo '<span class="arb-acc-question">' . $question . '</span>';
-            echo '<span class="arb-acc-icon arb-acc-icon--open">'  . $icon_open  . '</span>';
-            echo '<span class="arb-acc-icon arb-acc-icon--close">' . $icon_close . '</span>';
+            echo '<span class="arb-acc-icon arb-acc-icon--open" aria-hidden="true">'  . $icon_open  . '</span>';
+            echo '<span class="arb-acc-icon arb-acc-icon--close" aria-hidden="true">' . $icon_close . '</span>';
             echo '</button>';
 
             echo '<div class="arb-acc-body" id="' . esc_attr( $body_id ) . '" hidden>';
