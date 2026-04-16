@@ -2,6 +2,11 @@
 (function () {
     'use strict';
 
+    // Tracks the pending transitionend listener for each body element so that
+    // a rapid second closeItem() call (e.g. via closeOthers) removes the first
+    // listener before adding a new one, preventing unbounded listener stacking.
+    var closeTransitionListeners = new WeakMap();
+
     function initAccordion( scope ) {
         var root = scope || document;
         root.querySelectorAll( '.arb-accordion' ).forEach( function ( accordion ) {
@@ -51,6 +56,16 @@
         var header = item.querySelector( '.arb-acc-header' );
         if ( ! body || ! header ) return;
 
+        // Remove any previous transitionend listener before adding a new one.
+        // Without this, rapid closeItem() calls (e.g. from closeOthers) stack
+        // listeners on the same element — the orphaned listeners are never
+        // removed when the element is already closed and no transition fires.
+        var prevListener = closeTransitionListeners.get( body );
+        if ( prevListener ) {
+            body.removeEventListener( 'transitionend', prevListener );
+            closeTransitionListeners.delete( body );
+        }
+
         // Fija la altura actual antes de animar a 0
         body.style.maxHeight = body.scrollHeight + 'px';
         void body.offsetHeight;
@@ -60,15 +75,18 @@
         body.style.opacity   = '0';
         header.setAttribute( 'aria-expanded', 'false' );
 
-        body.addEventListener( 'transitionend', function onEnd( e ) {
+        function onEnd( e ) {
             if ( e.propertyName !== 'max-height' ) return;
             body.removeEventListener( 'transitionend', onEnd );
+            closeTransitionListeners.delete( body );
             if ( ! item.classList.contains( 'is-open' ) ) {
                 body.setAttribute( 'hidden', '' );
                 body.style.maxHeight = '';
                 body.style.opacity   = '';
             }
-        } );
+        }
+        closeTransitionListeners.set( body, onEnd );
+        body.addEventListener( 'transitionend', onEnd );
     }
 
     document.addEventListener( 'DOMContentLoaded', function () {
