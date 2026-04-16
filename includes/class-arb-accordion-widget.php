@@ -367,51 +367,92 @@ class ARB_Accordion_Widget extends \Elementor\Widget_Base {
 
         echo '<div class="' . esc_attr( $acc_class ) . '" data-close-others="' . esc_attr( $close_others ) . '">';
 
-        foreach ( $rows as $idx => $row ) {
-            $body_id  = 'arb-acc-body-' . esc_attr( $this->get_id() ) . '-' . $idx;
-            $question = '';
-            $answer   = '';
-            $img_html = '';
-
-            if ( $q_field && array_key_exists( $q_field, $row ) ) {
-                $v        = $row[ $q_field ];
-                $question = is_array( $v )
-                    ? esc_html( implode( ', ', array_map( 'strval', $v ) ) )
-                    : esc_html( (string) $v );
-            }
-
-            if ( $a_field && array_key_exists( $a_field, $row ) ) {
-                $v    = $row[ $a_field ];
-                $type = ARB_ACF_Helpers::get_sub_field_type( $a_field );
-                if ( is_array( $v ) ) {
-                    $answer = wp_kses_post( implode( ' ', array_map( 'strval', $v ) ) );
-                } elseif ( $type === 'wysiwyg' ) {
-                    $answer = wp_kses_post( wpautop( (string) $v ) );
-                } else {
-                    $answer = '<p>' . esc_html( (string) $v ) . '</p>';
+        if ( $columns === '2' ) {
+            // Split rows into two sequential columns so CSS flex-row + .arb-acc-col layout works.
+            $mid      = (int) ceil( count( $rows ) / 2 );
+            $col_sets = [
+                array_slice( $rows, 0, $mid, true ),
+                array_slice( $rows, $mid, null, true ),
+            ];
+            foreach ( $col_sets as $col_rows ) {
+                echo '<div class="arb-acc-col">';
+                foreach ( $col_rows as $idx => $row ) {
+                    $this->render_accordion_item( $idx, $row, $q_field, $a_field, $img_field, $icon_open, $icon_close );
                 }
+                echo '</div>';
             }
-
-            if ( $img_field && array_key_exists( $img_field, $row ) ) {
-                $img_html = $this->render_image_value( $row[ $img_field ] );
+        } else {
+            foreach ( $rows as $idx => $row ) {
+                $this->render_accordion_item( $idx, $row, $q_field, $a_field, $img_field, $icon_open, $icon_close );
             }
-
-            echo '<div class="arb-acc-item">';
-
-            echo '<button class="arb-acc-header" '
-                . 'aria-expanded="false" '
-                . 'aria-controls="' . esc_attr( $body_id ) . '">';
-            echo '<span class="arb-acc-question">' . $question . '</span>';
-            echo '<span class="arb-acc-icon arb-acc-icon--open" aria-hidden="true">'  . $icon_open  . '</span>';
-            echo '<span class="arb-acc-icon arb-acc-icon--close" aria-hidden="true">' . $icon_close . '</span>';
-            echo '</button>';
-
-            echo '<div class="arb-acc-body" id="' . esc_attr( $body_id ) . '" hidden>';
-            echo '<div class="arb-acc-content">' . $answer . $img_html . '</div>';
-            echo '</div>';
-
-            echo '</div>';
         }
+
+        echo '</div>';
+    }
+
+    /**
+     * Renders a single accordion item (header button + collapsible body panel).
+     * Extracted so the same markup is used for both 1- and 2-column layouts.
+     */
+    private function render_accordion_item(
+        int    $idx,
+        array  $row,
+        string $q_field,
+        string $a_field,
+        string $img_field,
+        string $icon_open,
+        string $icon_close
+    ): void {
+        $widget_id = $this->get_id();
+        $header_id = 'arb-acc-header-' . $widget_id . '-' . $idx;
+        $body_id   = 'arb-acc-body-'   . $widget_id . '-' . $idx;
+        $question  = '';
+        $answer    = '';
+        $img_html  = '';
+
+        if ( $q_field && array_key_exists( $q_field, $row ) ) {
+            $v        = $row[ $q_field ];
+            $question = is_array( $v )
+                ? esc_html( implode( ', ', array_map( 'strval', $v ) ) )
+                : esc_html( (string) $v );
+        }
+
+        if ( $a_field && array_key_exists( $a_field, $row ) ) {
+            $v    = $row[ $a_field ];
+            $type = ARB_ACF_Helpers::get_sub_field_type( $a_field );
+            if ( is_array( $v ) ) {
+                $answer = wp_kses_post( implode( ' ', array_map( 'strval', $v ) ) );
+            } elseif ( $type === 'wysiwyg' ) {
+                $answer = wp_kses_post( wpautop( (string) $v ) );
+            } else {
+                $answer = '<p>' . esc_html( (string) $v ) . '</p>';
+            }
+        }
+
+        if ( $img_field && array_key_exists( $img_field, $row ) ) {
+            $img_html = $this->render_image_value( $row[ $img_field ] );
+        }
+
+        echo '<div class="arb-acc-item">';
+
+        // aria-controls + id pairing lets AT announce which region the button governs.
+        echo '<button class="arb-acc-header" '
+            . 'id="' . esc_attr( $header_id ) . '" '
+            . 'aria-expanded="false" '
+            . 'aria-controls="' . esc_attr( $body_id ) . '">';
+        echo '<span class="arb-acc-question">' . $question . '</span>';
+        echo '<span class="arb-acc-icon arb-acc-icon--open" aria-hidden="true">'  . $icon_open  . '</span>';
+        echo '<span class="arb-acc-icon arb-acc-icon--close" aria-hidden="true">' . $icon_close . '</span>';
+        echo '</button>';
+
+        // role="region" + aria-labelledby lets screen readers label the panel with its heading.
+        echo '<div class="arb-acc-body" '
+            . 'id="' . esc_attr( $body_id ) . '" '
+            . 'role="region" '
+            . 'aria-labelledby="' . esc_attr( $header_id ) . '" '
+            . 'hidden>';
+        echo '<div class="arb-acc-content">' . $answer . $img_html . '</div>';
+        echo '</div>';
 
         echo '</div>';
     }
