@@ -883,7 +883,7 @@ class ARB_Widget extends \Elementor\Widget_Base {
         $tpl = $s['html_template'] ?? '';
         if ( ! $tpl ) return;
 
-        $tpl = preg_replace( '/\s+on\w+\s*=\s*(?:"[^"]*"|\'[^\']*\'|[^\s>\/]*)/i', '', $tpl );
+        $tpl = preg_replace( '/[\s\/]+on\w+\s*=\s*(?:"[^"]*"|\'[^\']*\'|[^\s>\/]*)/i', '', $tpl );
         $tpl = preg_replace( '/<script\b[^>]*>.*?<\/script\s*>/is', '', $tpl );
         // Neutraliza javascript: y data: en atributos href, src, action, formaction, xlink:href
         $tpl = preg_replace( '/(href|src|action|formaction|xlink:href)\s*=\s*(["\'])\s*(?:javascript|data)\s*:/i', '$1=$2#', $tpl );
