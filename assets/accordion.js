@@ -93,12 +93,20 @@
         initAccordion( document );
     } );
 
-    if ( window.elementorFrontend ) {
+    function registerElementorHook() {
         window.elementorFrontend.hooks.addAction(
             'frontend/element_ready/arb-accordion/default',
             function ( $scope ) {
                 initAccordion( $scope[0] || $scope );
             }
         );
+    }
+
+    // elementorFrontend may not exist yet at parse time; fall back to the
+    // jQuery-based init event that Elementor fires when its frontend is ready.
+    if ( window.elementorFrontend && window.elementorFrontend.hooks ) {
+        registerElementorHook();
+    } else if ( window.jQuery ) {
+        window.jQuery( window ).on( 'elementor/frontend/init', registerElementorHook );
     }
 } )();

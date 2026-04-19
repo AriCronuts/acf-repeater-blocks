@@ -203,6 +203,9 @@
     box-sizing: border-box;
     white-space: normal;
     transition: none;
+    font-family: inherit;
+    font-size: inherit;
+    line-height: inherit;
 }
 
 /* Restore accessible keyboard focus indicator (same specificity as reset above,

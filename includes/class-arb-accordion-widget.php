@@ -436,7 +436,7 @@ class ARB_Accordion_Widget extends \Elementor\Widget_Base {
         echo '<div class="arb-acc-item">';
 
         // aria-controls + id pairing lets AT announce which region the button governs.
-        echo '<button class="arb-acc-header" '
+        echo '<button type="button" class="arb-acc-header" '
             . 'id="' . esc_attr( $header_id ) . '" '
             . 'aria-expanded="false" '
             . 'aria-controls="' . esc_attr( $body_id ) . '">';
