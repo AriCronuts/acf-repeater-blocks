@@ -12,7 +12,7 @@
 
 **No abras un Issue público** para reportar vulnerabilidades de seguridad, ya que podría exponer el problema antes de que esté corregido.
 
-Envía un email a **hello@cronuts.digital** con el asunto `[SECURITY] ACF Repeater for Elementor` e incluye:
+Envía un email a **aballestar@cronuts.digital** con el asunto `[SECURITY] ACF Repeater for Elementor` e incluye:
 
 1. Descripción detallada de la vulnerabilidad.
 2. Pasos para reproducirla (proof of concept si es posible).
