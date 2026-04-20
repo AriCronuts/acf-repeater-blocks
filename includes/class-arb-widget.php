@@ -138,9 +138,9 @@ class ARB_Widget extends \Elementor\Widget_Base {
         $rep->add_control( 'sf_color', [
             'label'     => 'Color texto',
             'type'      => Controls_Manager::COLOR,
-            'global'    => [ 'active' => true ],
             'selectors' => [
-                '{{WRAPPER}} .elementor-repeater-item-{{_id}}' => 'color: {{VALUE}};',
+                '{{WRAPPER}} .elementor-repeater-item-{{_id}}'                       => 'color: {{VALUE}};',
+                '{{WRAPPER}} .arb-table .elementor-repeater-item-{{_id}}'            => 'color: {{VALUE}};',
             ],
         ] );
 
@@ -150,7 +150,8 @@ class ARB_Widget extends \Elementor\Widget_Base {
             'size_units' => [ 'px', 'em', 'rem' ],
             'range'      => [ 'px' => [ 'min' => 10, 'max' => 100 ] ],
             'selectors'  => [
-                '{{WRAPPER}} .elementor-repeater-item-{{_id}}' => 'font-size: {{SIZE}}{{UNIT}};',
+                '{{WRAPPER}} .elementor-repeater-item-{{_id}}'                       => 'font-size: {{SIZE}}{{UNIT}};',
+                '{{WRAPPER}} .arb-table .elementor-repeater-item-{{_id}}'            => 'font-size: {{SIZE}}{{UNIT}};',
             ],
         ] );
 
@@ -167,7 +168,8 @@ class ARB_Widget extends \Elementor\Widget_Base {
                 '800' => 'Extra-bold (800)',
             ],
             'selectors' => [
-                '{{WRAPPER}} .elementor-repeater-item-{{_id}}' => 'font-weight: {{VALUE}};',
+                '{{WRAPPER}} .elementor-repeater-item-{{_id}}'                       => 'font-weight: {{VALUE}};',
+                '{{WRAPPER}} .arb-table .elementor-repeater-item-{{_id}}'            => 'font-weight: {{VALUE}};',
             ],
         ] );
 
@@ -394,6 +396,14 @@ class ARB_Widget extends \Elementor\Widget_Base {
             'label_off'    => 'No',
             'return_value' => '1',
             'default'      => '1',
+        ] );
+
+        $this->add_control( 'tbl_row_header_field', [
+            'label'       => 'Campo como encabezado de fila',
+            'type'        => Controls_Manager::SELECT,
+            'options'     => array_merge( [ '' => '— Ninguno —' ], ARB_ACF_Helpers::get_sub_field_options() ),
+            'description' => 'El sub-campo elegido se renderiza como &lt;th scope="row"&gt; con estilo propio. Estilízalo en "Tabla · Encabezado de fila".',
+            'separator'   => 'before',
         ] );
 
         $this->end_controls_section();
@@ -751,17 +761,15 @@ class ARB_Widget extends \Elementor\Widget_Base {
             'selectors'  => [ '{{WRAPPER}} .arb-item' => 'padding: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};' ],
         ] );
 
-        $this->add_control( 'item_bg', [
-            'label'     => 'Fondo',
-            'type'      => Controls_Manager::COLOR,
-            'global'    => [ 'active' => true ],
-            'selectors' => [ '{{WRAPPER}} .arb-item' => 'background-color: {{VALUE}};' ],
+        $this->add_group_control( \Elementor\Group_Control_Background::get_type(), [
+            'name'     => 'item_background',
+            'types'    => [ 'classic', 'gradient' ],
+            'selector' => '{{WRAPPER}} .arb-item',
         ] );
 
         $this->add_control( 'item_border_color', [
             'label'     => 'Color borde',
             'type'      => Controls_Manager::COLOR,
-            'global'    => [ 'active' => true ],
             'selectors' => [ '{{WRAPPER}} .arb-item' => 'border-color: {{VALUE}};' ],
         ] );
 
@@ -894,6 +902,60 @@ class ARB_Widget extends \Elementor\Widget_Base {
                 'right'  => [ 'title' => 'Derecha',    'icon' => 'eicon-text-align-right'  ],
             ],
             'selectors' => [ '{{WRAPPER}} .arb-table tbody td' => 'text-align: {{VALUE}};' ],
+        ] );
+
+        $this->end_controls_section();
+
+        // ── STYLE: Tabla — Encabezado de fila ────────────────────────────────
+        $this->start_controls_section( 'sec_tbl_style_row_header', [
+            'label'     => 'Tabla · Encabezado de fila',
+            'tab'       => Controls_Manager::TAB_STYLE,
+            'condition' => [ 'skin' => 'table', 'tbl_row_header_field!' => '' ],
+        ] );
+
+        $this->add_responsive_control( 'tbl_rh_padding', [
+            'label'      => 'Padding',
+            'type'       => Controls_Manager::DIMENSIONS,
+            'size_units' => [ 'px', 'em', '%' ],
+            'selectors'  => [ '{{WRAPPER}} .arb-table tbody th.arb-row-header' => 'padding: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};' ],
+        ] );
+
+        $this->add_control( 'tbl_rh_bg', [
+            'label'     => 'Fondo',
+            'type'      => Controls_Manager::COLOR,
+            'selectors' => [ '{{WRAPPER}} .arb-table tbody th.arb-row-header' => 'background-color: {{VALUE}};' ],
+        ] );
+
+        $this->add_control( 'tbl_rh_color', [
+            'label'     => 'Color de texto',
+            'type'      => Controls_Manager::COLOR,
+            'selectors' => [ '{{WRAPPER}} .arb-table tbody th.arb-row-header' => 'color: {{VALUE}};' ],
+        ] );
+
+        $this->add_group_control( \Elementor\Group_Control_Typography::get_type(), [
+            'name'     => 'tbl_rh_typography',
+            'selector' => '{{WRAPPER}} .arb-table tbody th.arb-row-header',
+        ] );
+
+        $this->add_control( 'tbl_rh_align', [
+            'label'     => 'Alineación',
+            'type'      => Controls_Manager::CHOOSE,
+            'default'   => 'left',
+            'toggle'    => false,
+            'options'   => [
+                'left'   => [ 'title' => 'Izquierda', 'icon' => 'eicon-text-align-left'   ],
+                'center' => [ 'title' => 'Centro',     'icon' => 'eicon-text-align-center' ],
+                'right'  => [ 'title' => 'Derecha',    'icon' => 'eicon-text-align-right'  ],
+            ],
+            'selectors' => [ '{{WRAPPER}} .arb-table tbody th.arb-row-header' => 'text-align: {{VALUE}};' ],
+        ] );
+
+        $this->add_control( 'tbl_rh_width', [
+            'label'      => 'Ancho de columna',
+            'type'       => Controls_Manager::SLIDER,
+            'size_units' => [ 'px', '%' ],
+            'range'      => [ '%' => [ 'min' => 10, 'max' => 80 ], 'px' => [ 'min' => 50, 'max' => 600 ] ],
+            'selectors'  => [ '{{WRAPPER}} .arb-table tbody th.arb-row-header' => 'width: {{SIZE}}{{UNIT}};' ],
         ] );
 
         $this->end_controls_section();
@@ -1116,7 +1178,12 @@ class ARB_Widget extends \Elementor\Widget_Base {
             }
 
             if ( $skin === 'table' ) {
-                echo '<td class="arb-td elementor-repeater-item-' . esc_attr( $id ) . '">' . $val_str . '</td>'; // phpcs:ignore
+                $row_header_field = ARB_ACF_Helpers::sanitize_field_name( $s['tbl_row_header_field'] ?? '' );
+                if ( $row_header_field && $name === $row_header_field ) {
+                    echo '<th scope="row" class="arb-row-header elementor-repeater-item-' . esc_attr( $id ) . '">' . $val_str . '</th>'; // phpcs:ignore
+                } else {
+                    echo '<td class="arb-td elementor-repeater-item-' . esc_attr( $id ) . '">' . $val_str . '</td>'; // phpcs:ignore
+                }
             } elseif ( $tag ) {
                 echo '<' . esc_attr( $tag ) . ' class="arb-sf elementor-repeater-item-' . esc_attr( $id ) . '">'
                     . $label . $val_str

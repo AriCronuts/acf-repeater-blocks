@@ -53,6 +53,7 @@
 .arb-table {
     width: 100%;
     border-collapse: collapse;
+    margin-block-end: 0;
 }
 
 .arb-table th,
@@ -81,14 +82,21 @@
     font-weight: 600;
 }
 
-.arb-td {
+.arb-td,
+.arb-row-header {
     vertical-align: top;
 }
 
-.arb-td img {
+.arb-td img,
+.arb-row-header img {
     display: block;
     max-width: 100%;
     height: auto;
+}
+
+.arb-row-header {
+    font-weight: 600;
+    text-align: left;
 }
 
 .arb-item {
