@@ -40,6 +40,12 @@
 
 .arb-table-wrap {
     width: 100%;
+    overflow: hidden;
+    border: 1px solid var(--arb-border-color);
+    box-sizing: border-box;
+}
+
+.arb-table-wrap.arb-table-responsive {
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
 }
@@ -52,19 +58,27 @@
 .arb-table th,
 .arb-table td {
     padding: 10px 14px;
-    border: 1px solid var(--arb-border-color);
     text-align: left;
     vertical-align: top;
     overflow-wrap: break-word;
+    border-right: 1px solid var(--arb-border-color);
+    border-bottom: 1px solid var(--arb-border-color);
+}
+
+/* No right border on last column — handled by outer border */
+.arb-table th:last-child,
+.arb-table td:last-child {
+    border-right: none;
+}
+
+/* No bottom border on last tbody row — handled by outer border */
+.arb-table tbody tr:last-child td {
+    border-bottom: none;
 }
 
 .arb-table thead th {
     background: var(--arb-bg-table-header);
     font-weight: 600;
-}
-
-.arb-table.arb-table-striped tbody tr:nth-child(odd) td {
-    background-color: var(--arb-bg-card);
 }
 
 .arb-td {

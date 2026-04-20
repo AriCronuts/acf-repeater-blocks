@@ -387,15 +387,6 @@ class ARB_Widget extends \Elementor\Widget_Base {
             'condition' => [ 'tbl_show_thead' => '1' ],
         ] );
 
-        $this->add_control( 'tbl_striped', [
-            'label'        => 'Filas alternadas',
-            'type'         => Controls_Manager::SWITCHER,
-            'label_on'     => 'Sí',
-            'label_off'    => 'No',
-            'return_value' => '1',
-            'separator'    => 'before',
-        ] );
-
         $this->add_control( 'tbl_responsive', [
             'label'        => 'Scroll horizontal en móvil',
             'type'         => Controls_Manager::SWITCHER,
@@ -869,10 +860,16 @@ class ARB_Widget extends \Elementor\Widget_Base {
             'selectors'  => [ '{{WRAPPER}} .arb-table tbody td' => 'padding: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};' ],
         ] );
 
-        $this->add_control( 'tbl_td_bg', [
-            'label'     => 'Fondo celda',
+        $this->add_control( 'tbl_row_bg', [
+            'label'     => 'Fondo de fila (base)',
             'type'      => Controls_Manager::COLOR,
             'selectors' => [ '{{WRAPPER}} .arb-table tbody td' => 'background-color: {{VALUE}};' ],
+        ] );
+
+        $this->add_control( 'tbl_row_alt_bg', [
+            'label'     => 'Fondo de fila alternada',
+            'type'      => Controls_Manager::COLOR,
+            'selectors' => [ '{{WRAPPER}} .arb-table tbody tr:nth-child(even) td' => 'background-color: {{VALUE}};' ],
         ] );
 
         $this->add_control( 'tbl_td_color', [
@@ -899,21 +896,6 @@ class ARB_Widget extends \Elementor\Widget_Base {
             'selectors' => [ '{{WRAPPER}} .arb-table tbody td' => 'text-align: {{VALUE}};' ],
         ] );
 
-        $this->add_control( 'tbl_odd_bg', [
-            'label'     => 'Fondo filas impares',
-            'type'      => Controls_Manager::COLOR,
-            'condition' => [ 'tbl_striped' => '1' ],
-            'selectors' => [ '{{WRAPPER}} .arb-table.arb-table-striped tbody tr:nth-child(odd) td' => 'background-color: {{VALUE}};' ],
-            'separator' => 'before',
-        ] );
-
-        $this->add_control( 'tbl_even_bg', [
-            'label'     => 'Fondo filas pares',
-            'type'      => Controls_Manager::COLOR,
-            'condition' => [ 'tbl_striped' => '1' ],
-            'selectors' => [ '{{WRAPPER}} .arb-table.arb-table-striped tbody tr:nth-child(even) td' => 'background-color: {{VALUE}};' ],
-        ] );
-
         $this->end_controls_section();
 
         // ── STYLE: Tabla — Bordes ─────────────────────────────────────────────
@@ -923,33 +905,86 @@ class ARB_Widget extends \Elementor\Widget_Base {
             'condition' => [ 'skin' => 'table' ],
         ] );
 
-        $this->add_control( 'tbl_border_color', [
-            'label'     => 'Color de borde',
+        $this->add_control( 'tbl_border_heading_outer', [
+            'label'     => 'Borde exterior',
+            'type'      => Controls_Manager::HEADING,
+        ] );
+
+        $this->add_control( 'tbl_outer_border_color', [
+            'label'     => 'Color',
+            'type'      => Controls_Manager::COLOR,
+            'selectors' => [ '{{WRAPPER}} .arb-table-wrap' => 'border-color: {{VALUE}};' ],
+        ] );
+
+        $this->add_control( 'tbl_outer_border_width', [
+            'label'      => 'Ancho',
+            'type'       => Controls_Manager::SLIDER,
+            'size_units' => [ 'px' ],
+            'range'      => [ 'px' => [ 'min' => 0, 'max' => 10 ] ],
+            'default'    => [ 'unit' => 'px', 'size' => 1 ],
+            'selectors'  => [ '{{WRAPPER}} .arb-table-wrap' => 'border-width: {{SIZE}}px; border-style: solid;' ],
+        ] );
+
+        $this->add_control( 'tbl_border_radius', [
+            'label'      => 'Border radius',
+            'type'       => Controls_Manager::SLIDER,
+            'size_units' => [ 'px' ],
+            'range'      => [ 'px' => [ 'min' => 0, 'max' => 32 ] ],
+            'selectors'  => [ '{{WRAPPER}} .arb-table-wrap' => 'border-radius: {{SIZE}}{{UNIT}};' ],
+        ] );
+
+        $this->add_control( 'tbl_border_heading_inner_h', [
+            'label'     => 'Bordes interiores horizontales (entre filas)',
+            'type'      => Controls_Manager::HEADING,
+            'separator' => 'before',
+        ] );
+
+        $this->add_control( 'tbl_inner_h_color', [
+            'label'     => 'Color',
             'type'      => Controls_Manager::COLOR,
             'selectors' => [
-                '{{WRAPPER}} .arb-table th' => 'border-color: {{VALUE}};',
-                '{{WRAPPER}} .arb-table td' => 'border-color: {{VALUE}};',
+                '{{WRAPPER}} .arb-table th' => 'border-bottom-color: {{VALUE}};',
+                '{{WRAPPER}} .arb-table td' => 'border-bottom-color: {{VALUE}};',
             ],
         ] );
 
-        $this->add_control( 'tbl_border_width', [
-            'label'      => 'Ancho de borde',
+        $this->add_control( 'tbl_inner_h_width', [
+            'label'      => 'Ancho',
             'type'       => Controls_Manager::SLIDER,
             'size_units' => [ 'px' ],
             'range'      => [ 'px' => [ 'min' => 0, 'max' => 5 ] ],
             'default'    => [ 'unit' => 'px', 'size' => 1 ],
             'selectors'  => [
-                '{{WRAPPER}} .arb-table th' => 'border-width: {{SIZE}}px; border-style: solid;',
-                '{{WRAPPER}} .arb-table td' => 'border-width: {{SIZE}}px; border-style: solid;',
+                '{{WRAPPER}} .arb-table th' => 'border-bottom-width: {{SIZE}}px; border-bottom-style: solid;',
+                '{{WRAPPER}} .arb-table td' => 'border-bottom-width: {{SIZE}}px; border-bottom-style: solid;',
             ],
         ] );
 
-        $this->add_control( 'tbl_border_radius', [
-            'label'      => 'Border radius (tabla)',
+        $this->add_control( 'tbl_border_heading_inner_v', [
+            'label'     => 'Bordes interiores verticales (entre columnas)',
+            'type'      => Controls_Manager::HEADING,
+            'separator' => 'before',
+        ] );
+
+        $this->add_control( 'tbl_inner_v_color', [
+            'label'     => 'Color',
+            'type'      => Controls_Manager::COLOR,
+            'selectors' => [
+                '{{WRAPPER}} .arb-table th:not(:last-child)' => 'border-right-color: {{VALUE}};',
+                '{{WRAPPER}} .arb-table td:not(:last-child)' => 'border-right-color: {{VALUE}};',
+            ],
+        ] );
+
+        $this->add_control( 'tbl_inner_v_width', [
+            'label'      => 'Ancho',
             'type'       => Controls_Manager::SLIDER,
             'size_units' => [ 'px' ],
-            'range'      => [ 'px' => [ 'min' => 0, 'max' => 24 ] ],
-            'selectors'  => [ '{{WRAPPER}} .arb-table' => 'border-radius: {{SIZE}}{{UNIT}}; overflow: hidden;' ],
+            'range'      => [ 'px' => [ 'min' => 0, 'max' => 5 ] ],
+            'default'    => [ 'unit' => 'px', 'size' => 1 ],
+            'selectors'  => [
+                '{{WRAPPER}} .arb-table th:not(:last-child)' => 'border-right-width: {{SIZE}}px; border-right-style: solid;',
+                '{{WRAPPER}} .arb-table td:not(:last-child)' => 'border-right-width: {{SIZE}}px; border-right-style: solid;',
+            ],
         ] );
 
         $this->end_controls_section();
@@ -1144,10 +1179,9 @@ class ARB_Widget extends \Elementor\Widget_Base {
                 break;
             case 'table':
                 $responsive = ! empty( $s['tbl_responsive'] );
-                $striped    = ! empty( $s['tbl_striped'] );
-                $tbl_cls    = 'arb-table' . ( $striped ? ' arb-table-striped' : '' );
-                if ( $responsive ) echo '<div class="arb-table-wrap">';
-                echo '<table class="' . esc_attr( $tbl_cls ) . '">';
+                $wrap_cls   = 'arb-table-wrap' . ( $responsive ? ' arb-table-responsive' : '' );
+                echo '<div class="' . esc_attr( $wrap_cls ) . '">';
+                echo '<table class="arb-table">';
                 if ( ! empty( $s['tbl_show_thead'] ) && ! empty( $s['subfields'] ) ) {
                     $use_name = ( ( $s['tbl_head_source'] ?? 'label' ) === 'name' );
                     echo '<thead><tr>';
@@ -1173,8 +1207,7 @@ class ARB_Widget extends \Elementor\Widget_Base {
                 echo '</ul>';
                 break;
             case 'table':
-                echo '</tbody></table>';
-                if ( ! empty( $s['tbl_responsive'] ) ) echo '</div>';
+                echo '</tbody></table></div>';
                 break;
         }
     }
