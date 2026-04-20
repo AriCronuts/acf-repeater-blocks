@@ -354,6 +354,59 @@ class ARB_Widget extends \Elementor\Widget_Base {
 
         $this->end_controls_section();
 
+        // ── SECCIÓN: Tabla — Configuración ───────────────────────────────────
+        $this->start_controls_section( 'sec_table', [
+            'label'     => '📊 Tabla',
+            'tab'       => Controls_Manager::TAB_CONTENT,
+            'condition' => [ 'skin' => 'table' ],
+        ] );
+
+        $this->add_control( 'tbl_show_thead', [
+            'label'        => 'Mostrar fila de encabezados',
+            'type'         => Controls_Manager::SWITCHER,
+            'label_on'     => 'Sí',
+            'label_off'    => 'No',
+            'return_value' => '1',
+            'default'      => '1',
+        ] );
+
+        $this->add_control( 'tbl_head_source', [
+            'label'     => 'Texto de encabezado',
+            'type'      => Controls_Manager::SELECT,
+            'default'   => 'label',
+            'options'   => [
+                'label' => 'Prefijo visible del sub-campo',
+                'name'  => 'Nombre del campo ACF',
+            ],
+            'condition' => [ 'tbl_show_thead' => '1' ],
+        ] );
+
+        $this->add_control( 'tbl_head_info', [
+            'type'      => Controls_Manager::RAW_HTML,
+            'raw'       => '<small style="color:#9da5ae;line-height:1.8;display:block">El encabezado usa el <strong>Prefijo visible</strong> de cada sub-campo (panel → Modo y contenido). Si está vacío, usa el nombre ACF del campo.</small>',
+            'condition' => [ 'tbl_show_thead' => '1' ],
+        ] );
+
+        $this->add_control( 'tbl_striped', [
+            'label'        => 'Filas alternadas',
+            'type'         => Controls_Manager::SWITCHER,
+            'label_on'     => 'Sí',
+            'label_off'    => 'No',
+            'return_value' => '1',
+            'separator'    => 'before',
+        ] );
+
+        $this->add_control( 'tbl_responsive', [
+            'label'        => 'Scroll horizontal en móvil',
+            'type'         => Controls_Manager::SWITCHER,
+            'label_on'     => 'Sí',
+            'label_off'    => 'No',
+            'return_value' => '1',
+            'default'      => '1',
+        ] );
+
+        $this->end_controls_section();
+
         // ── SECCIÓN: Acordeón — Configuración ────────────────────────────────
         $this->start_controls_section( 'sec_accordion', [
             'label'     => '🪗 Acordeón',
@@ -693,11 +746,11 @@ class ARB_Widget extends \Elementor\Widget_Base {
 
         $this->end_controls_section();
 
-        // ── SECCIÓN: Estilo ítem ──────────────────────────────────────────────
+        // ── SECCIÓN: Estilo ítem (grid/lista) ────────────────────────────────
         $this->start_controls_section( 'sec_style_item', [
-            'label'     => 'Ítem contenedor',
+            'label'     => 'Grid/Lista · Ítem',
             'tab'       => Controls_Manager::TAB_STYLE,
-            'condition' => [ 'skin' => [ 'grid', 'list', 'table' ] ],
+            'condition' => [ 'skin' => [ 'grid', 'list' ] ],
         ] );
 
         $this->add_responsive_control( 'item_padding', [
@@ -735,6 +788,168 @@ class ARB_Widget extends \Elementor\Widget_Base {
             'size_units' => [ 'px', '%' ],
             'range'      => [ 'px' => [ 'min' => 0, 'max' => 60 ] ],
             'selectors'  => [ '{{WRAPPER}} .arb-item' => 'border-radius: {{SIZE}}{{UNIT}};' ],
+        ] );
+
+        $this->add_control( 'item_color', [
+            'label'     => 'Color de texto',
+            'type'      => Controls_Manager::COLOR,
+            'selectors' => [ '{{WRAPPER}} .arb-item' => 'color: {{VALUE}};' ],
+            'separator' => 'before',
+        ] );
+
+        $this->add_group_control( \Elementor\Group_Control_Typography::get_type(), [
+            'name'     => 'item_typography',
+            'selector' => '{{WRAPPER}} .arb-item',
+        ] );
+
+        $this->add_group_control( \Elementor\Group_Control_Box_Shadow::get_type(), [
+            'name'     => 'item_box_shadow',
+            'selector' => '{{WRAPPER}} .arb-item',
+        ] );
+
+        $this->end_controls_section();
+
+        // ── STYLE: Tabla — Encabezado ─────────────────────────────────────────
+        $this->start_controls_section( 'sec_tbl_style_head', [
+            'label'     => 'Tabla · Encabezado',
+            'tab'       => Controls_Manager::TAB_STYLE,
+            'condition' => [ 'skin' => 'table' ],
+        ] );
+
+        $this->add_responsive_control( 'tbl_th_padding', [
+            'label'      => 'Padding',
+            'type'       => Controls_Manager::DIMENSIONS,
+            'size_units' => [ 'px', 'em', '%' ],
+            'selectors'  => [ '{{WRAPPER}} .arb-table thead th' => 'padding: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};' ],
+        ] );
+
+        $this->add_control( 'tbl_th_bg', [
+            'label'     => 'Fondo encabezado',
+            'type'      => Controls_Manager::COLOR,
+            'selectors' => [ '{{WRAPPER}} .arb-table thead th' => 'background-color: {{VALUE}};' ],
+        ] );
+
+        $this->add_control( 'tbl_th_color', [
+            'label'     => 'Color de texto',
+            'type'      => Controls_Manager::COLOR,
+            'selectors' => [ '{{WRAPPER}} .arb-table thead th' => 'color: {{VALUE}};' ],
+        ] );
+
+        $this->add_group_control( \Elementor\Group_Control_Typography::get_type(), [
+            'name'     => 'tbl_th_typography',
+            'selector' => '{{WRAPPER}} .arb-table thead th',
+        ] );
+
+        $this->add_control( 'tbl_th_align', [
+            'label'     => 'Alineación',
+            'type'      => Controls_Manager::CHOOSE,
+            'default'   => 'left',
+            'toggle'    => false,
+            'options'   => [
+                'left'   => [ 'title' => 'Izquierda', 'icon' => 'eicon-text-align-left'   ],
+                'center' => [ 'title' => 'Centro',     'icon' => 'eicon-text-align-center' ],
+                'right'  => [ 'title' => 'Derecha',    'icon' => 'eicon-text-align-right'  ],
+            ],
+            'selectors' => [ '{{WRAPPER}} .arb-table thead th' => 'text-align: {{VALUE}};' ],
+        ] );
+
+        $this->end_controls_section();
+
+        // ── STYLE: Tabla — Celdas ─────────────────────────────────────────────
+        $this->start_controls_section( 'sec_tbl_style_cell', [
+            'label'     => 'Tabla · Celdas',
+            'tab'       => Controls_Manager::TAB_STYLE,
+            'condition' => [ 'skin' => 'table' ],
+        ] );
+
+        $this->add_responsive_control( 'tbl_td_padding', [
+            'label'      => 'Padding',
+            'type'       => Controls_Manager::DIMENSIONS,
+            'size_units' => [ 'px', 'em', '%' ],
+            'selectors'  => [ '{{WRAPPER}} .arb-table tbody td' => 'padding: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};' ],
+        ] );
+
+        $this->add_control( 'tbl_td_bg', [
+            'label'     => 'Fondo celda',
+            'type'      => Controls_Manager::COLOR,
+            'selectors' => [ '{{WRAPPER}} .arb-table tbody td' => 'background-color: {{VALUE}};' ],
+        ] );
+
+        $this->add_control( 'tbl_td_color', [
+            'label'     => 'Color de texto',
+            'type'      => Controls_Manager::COLOR,
+            'selectors' => [ '{{WRAPPER}} .arb-table tbody td' => 'color: {{VALUE}};' ],
+        ] );
+
+        $this->add_group_control( \Elementor\Group_Control_Typography::get_type(), [
+            'name'     => 'tbl_td_typography',
+            'selector' => '{{WRAPPER}} .arb-table tbody td',
+        ] );
+
+        $this->add_control( 'tbl_td_align', [
+            'label'     => 'Alineación',
+            'type'      => Controls_Manager::CHOOSE,
+            'default'   => 'left',
+            'toggle'    => false,
+            'options'   => [
+                'left'   => [ 'title' => 'Izquierda', 'icon' => 'eicon-text-align-left'   ],
+                'center' => [ 'title' => 'Centro',     'icon' => 'eicon-text-align-center' ],
+                'right'  => [ 'title' => 'Derecha',    'icon' => 'eicon-text-align-right'  ],
+            ],
+            'selectors' => [ '{{WRAPPER}} .arb-table tbody td' => 'text-align: {{VALUE}};' ],
+        ] );
+
+        $this->add_control( 'tbl_odd_bg', [
+            'label'     => 'Fondo filas impares',
+            'type'      => Controls_Manager::COLOR,
+            'condition' => [ 'tbl_striped' => '1' ],
+            'selectors' => [ '{{WRAPPER}} .arb-table.arb-table-striped tbody tr:nth-child(odd) td' => 'background-color: {{VALUE}};' ],
+            'separator' => 'before',
+        ] );
+
+        $this->add_control( 'tbl_even_bg', [
+            'label'     => 'Fondo filas pares',
+            'type'      => Controls_Manager::COLOR,
+            'condition' => [ 'tbl_striped' => '1' ],
+            'selectors' => [ '{{WRAPPER}} .arb-table.arb-table-striped tbody tr:nth-child(even) td' => 'background-color: {{VALUE}};' ],
+        ] );
+
+        $this->end_controls_section();
+
+        // ── STYLE: Tabla — Bordes ─────────────────────────────────────────────
+        $this->start_controls_section( 'sec_tbl_style_border', [
+            'label'     => 'Tabla · Bordes',
+            'tab'       => Controls_Manager::TAB_STYLE,
+            'condition' => [ 'skin' => 'table' ],
+        ] );
+
+        $this->add_control( 'tbl_border_color', [
+            'label'     => 'Color de borde',
+            'type'      => Controls_Manager::COLOR,
+            'selectors' => [
+                '{{WRAPPER}} .arb-table th' => 'border-color: {{VALUE}};',
+                '{{WRAPPER}} .arb-table td' => 'border-color: {{VALUE}};',
+            ],
+        ] );
+
+        $this->add_control( 'tbl_border_width', [
+            'label'      => 'Ancho de borde',
+            'type'       => Controls_Manager::SLIDER,
+            'size_units' => [ 'px' ],
+            'range'      => [ 'px' => [ 'min' => 0, 'max' => 5 ] ],
+            'default'    => [ 'unit' => 'px', 'size' => 1 ],
+            'selectors'  => [
+                '{{WRAPPER}} .arb-table th' => 'border-width: {{SIZE}}px; border-style: solid;',
+                '{{WRAPPER}} .arb-table td' => 'border-width: {{SIZE}}px; border-style: solid;',
+            ],
+        ] );
+
+        $this->add_control( 'tbl_border_radius', [
+            'label'      => 'Border radius (tabla)',
+            'type'       => Controls_Manager::SLIDER,
+            'size_units' => [ 'px' ],
+            'range'      => [ 'px' => [ 'min' => 0, 'max' => 24 ] ],
+            'selectors'  => [ '{{WRAPPER}} .arb-table' => 'border-radius: {{SIZE}}{{UNIT}}; overflow: hidden;' ],
         ] );
 
         $this->end_controls_section();
@@ -813,13 +1028,13 @@ class ARB_Widget extends \Elementor\Widget_Base {
 
         $mode = $s['display_mode'] ?? 'subfields';
 
-        $this->open_skin( $skin );
+        $this->open_skin( $skin, $s );
 
         foreach ( $rows as $idx => $row ) {
             $this->open_item( $skin, $idx, $total );
 
             switch ( $mode ) {
-                case 'subfields': $this->render_subfields( $s, $row );          break;
+                case 'subfields': $this->render_subfields( $s, $row, $skin );   break;
                 case 'html':      $this->render_html( $s, $row, $idx, $total ); break;
                 case 'template':  $this->render_template( $s, $row );           break;
             }
@@ -827,12 +1042,12 @@ class ARB_Widget extends \Elementor\Widget_Base {
             $this->close_item( $skin, $idx, $total, $s );
         }
 
-        $this->close_skin( $skin );
+        $this->close_skin( $skin, $s );
     }
 
     // ── Modo sub-campos ───────────────────────────────────────────────────────
 
-    private function render_subfields( array $s, array $row ): void {
+    private function render_subfields( array $s, array $row, string $skin = 'grid' ): void {
         $subfields = $s['subfields'] ?? [];
         if ( empty( $subfields ) ) {
             $this->placeholder( 'Añade al menos un sub-campo en el panel.' );
@@ -849,7 +1064,7 @@ class ARB_Widget extends \Elementor\Widget_Base {
             $label   = isset( $sf['sf_label'] ) ? esc_html( $sf['sf_label'] ) : '';
             $val_str = $this->field_to_html( $row, $name, $type );
 
-            if ( $val_str === '' ) continue;
+            if ( $val_str === '' && $skin !== 'table' ) continue;
 
             // Enlace
             if ( ! empty( $sf['sf_link_enable'] ) && ! empty( $sf['sf_link_field'] ) ) {
@@ -865,9 +1080,9 @@ class ARB_Widget extends \Elementor\Widget_Base {
                 }
             }
 
-            // Wrap con tag + clase elementor-repeater-item-{_id} para que los
-            // selectores {{CURRENT_ITEM}} del panel de estilo funcionen
-            if ( $tag ) {
+            if ( $skin === 'table' ) {
+                echo '<td class="arb-td elementor-repeater-item-' . esc_attr( $id ) . '">' . $val_str . '</td>'; // phpcs:ignore
+            } elseif ( $tag ) {
                 echo '<' . esc_attr( $tag ) . ' class="arb-sf elementor-repeater-item-' . esc_attr( $id ) . '">'
                     . $label . $val_str
                     . '</' . esc_attr( $tag ) . '>';
@@ -919,19 +1134,48 @@ class ARB_Widget extends \Elementor\Widget_Base {
 
     // ── Helpers skin ─────────────────────────────────────────────────────────
 
-    private function open_skin( string $skin ): void {
+    private function open_skin( string $skin, array $s = [] ): void {
         switch ( $skin ) {
-            case 'grid':  echo '<div class="arb-grid">'; break;
-            case 'list':  echo '<ul class="arb-list">';  break;
-            case 'table': echo '<table class="arb-table"><tbody>'; break;
+            case 'grid':
+                echo '<div class="arb-grid">';
+                break;
+            case 'list':
+                echo '<ul class="arb-list">';
+                break;
+            case 'table':
+                $responsive = ! empty( $s['tbl_responsive'] );
+                $striped    = ! empty( $s['tbl_striped'] );
+                $tbl_cls    = 'arb-table' . ( $striped ? ' arb-table-striped' : '' );
+                if ( $responsive ) echo '<div class="arb-table-wrap">';
+                echo '<table class="' . esc_attr( $tbl_cls ) . '">';
+                if ( ! empty( $s['tbl_show_thead'] ) && ! empty( $s['subfields'] ) ) {
+                    $use_name = ( ( $s['tbl_head_source'] ?? 'label' ) === 'name' );
+                    echo '<thead><tr>';
+                    foreach ( $s['subfields'] as $sf ) {
+                        $field_name = $sf['sf_name']  ?? '';
+                        $label      = trim( $sf['sf_label'] ?? '' );
+                        $header     = ( ! $use_name && $label !== '' ) ? $label : $field_name;
+                        echo '<th>' . esc_html( $header ) . '</th>';
+                    }
+                    echo '</tr></thead>';
+                }
+                echo '<tbody>';
+                break;
         }
     }
 
-    private function close_skin( string $skin ): void {
+    private function close_skin( string $skin, array $s = [] ): void {
         switch ( $skin ) {
-            case 'grid':  echo '</div>'; break;
-            case 'list':  echo '</ul>';  break;
-            case 'table': echo '</tbody></table>'; break;
+            case 'grid':
+                echo '</div>';
+                break;
+            case 'list':
+                echo '</ul>';
+                break;
+            case 'table':
+                echo '</tbody></table>';
+                if ( ! empty( $s['tbl_responsive'] ) ) echo '</div>';
+                break;
         }
     }
 

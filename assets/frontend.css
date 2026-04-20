@@ -38,6 +38,12 @@
     padding: 0;
 }
 
+.arb-table-wrap {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
 .arb-table {
     width: 100%;
     border-collapse: collapse;
@@ -57,8 +63,23 @@
     font-weight: 600;
 }
 
+.arb-table.arb-table-striped tbody tr:nth-child(odd) td {
+    background-color: var(--arb-bg-card);
+}
+
+.arb-td {
+    vertical-align: top;
+}
+
+.arb-td img {
+    display: block;
+    max-width: 100%;
+    height: auto;
+}
+
 .arb-item {
     box-sizing: border-box;
+    background-color: transparent;
 }
 
 .arb-sf {
