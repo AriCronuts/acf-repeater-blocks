@@ -274,3 +274,13 @@
 }
 /* El icono permanece en el flujo — flex-shrink:0 ya definido en .arb-acc-icon */
 /* icon-left + full: el row-reverse de .arb-icon-left ya lo coloca a la izquierda */
+
+/* ── Respeto a prefers-reduced-motion ─────────────────────────────────────── */
+/* Suppresses accordion open/close animation for users who prefer reduced motion.
+ * WCAG 2.3.3 (AAA). Also prevents the JS transitionend-never-fires bug: when
+ * transition is none, accordion.js detects this and sets hidden synchronously. */
+@media (prefers-reduced-motion: reduce) {
+    .arb-acc-body {
+        transition: none;
+    }
+}

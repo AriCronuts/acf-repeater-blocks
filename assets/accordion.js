@@ -33,12 +33,26 @@
         } );
     }
 
+    function prefersReducedMotion() {
+        return window.matchMedia && window.matchMedia( '(prefers-reduced-motion: reduce)' ).matches;
+    }
+
     function openItem( item ) {
         var body   = item.querySelector( '.arb-acc-body' );
         var header = item.querySelector( '.arb-acc-header' );
         if ( ! body || ! header ) return;
 
         body.removeAttribute( 'hidden' );
+
+        if ( prefersReducedMotion() ) {
+            // Skip animation: show content and update state synchronously.
+            item.classList.add( 'is-open' );
+            body.style.maxHeight = body.scrollHeight + 'px';
+            body.style.opacity   = '1';
+            header.setAttribute( 'aria-expanded', 'true' );
+            return;
+        }
+
         body.style.maxHeight = '0';
         body.style.opacity   = '0';
 
@@ -64,6 +78,19 @@
         if ( prevListener ) {
             body.removeEventListener( 'transitionend', prevListener );
             closeTransitionListeners.delete( body );
+        }
+
+        if ( prefersReducedMotion() ) {
+            // Skip animation: hide content and update state synchronously.
+            // Critical: if we relied on transitionend here and transitions are
+            // suppressed, the hidden attribute would never be restored, leaving
+            // the panel content readable by assistive technologies.
+            item.classList.remove( 'is-open' );
+            header.setAttribute( 'aria-expanded', 'false' );
+            body.setAttribute( 'hidden', '' );
+            body.style.maxHeight = '';
+            body.style.opacity   = '';
+            return;
         }
 
         // Fija la altura actual antes de animar a 0
