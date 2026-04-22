@@ -252,10 +252,13 @@
 }
 
 /* Restore accessible keyboard focus indicator (same specificity as reset above,
- * placed after so it wins via source order — WCAG 2.4.7). */
+ * placed after so it wins via source order — WCAG 2.4.7).
+ * border-radius matches .arb-acc-item so the rounded outline is not clipped
+ * by the parent's overflow:hidden at the item corners. */
 .arb-accordion .arb-acc-header:focus-visible {
     outline: 2px solid currentColor;
     outline-offset: -2px;
+    border-radius: var(--arb-radius);
 }
 
 /* ── Alineación del título ─────────────────────────────────────────────── */
