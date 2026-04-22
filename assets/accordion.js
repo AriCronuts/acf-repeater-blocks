@@ -38,6 +38,14 @@
         var header = item.querySelector( '.arb-acc-header' );
         if ( ! body || ! header ) return;
 
+        // Cancel any pending close-transition cleanup so it does not hide the
+        // body or clear inline styles at the end of the upcoming open animation.
+        var prevClose = closeTransitionListeners.get( body );
+        if ( prevClose ) {
+            body.removeEventListener( 'transitionend', prevClose );
+            closeTransitionListeners.delete( body );
+        }
+
         body.removeAttribute( 'hidden' );
         body.style.maxHeight = '0';
         body.style.opacity   = '0';
@@ -49,6 +57,17 @@
         body.style.maxHeight = body.scrollHeight + 'px';
         body.style.opacity   = '1';
         header.setAttribute( 'aria-expanded', 'true' );
+
+        // Lift the fixed max-height once the open animation ends so that
+        // content added after open (e.g. loading="lazy" images) is never clipped.
+        function onOpenEnd( e ) {
+            if ( e.propertyName !== 'max-height' ) return;
+            body.removeEventListener( 'transitionend', onOpenEnd );
+            if ( item.classList.contains( 'is-open' ) ) {
+                body.style.maxHeight = 'none';
+            }
+        }
+        body.addEventListener( 'transitionend', onOpenEnd );
     }
 
     function closeItem( item ) {
