@@ -116,7 +116,13 @@ class ARB_Accordion_Widget extends \Elementor\Widget_Base {
             'size_units' => [ 'px', 'em' ],
             'range'      => [ 'px' => [ 'min' => 0, 'max' => 60 ] ],
             'default'    => [ 'unit' => 'px', 'size' => 12 ],
-            'selectors'  => [ '{{WRAPPER}} .arb-accordion' => 'row-gap: {{SIZE}}{{UNIT}};' ],
+            'selectors'  => [
+                // 1-col: items are direct children of .arb-accordion (flex-column).
+                // 2-col: items sit inside .arb-acc-col; the outer .arb-accordion is
+                //        flex-row so its row-gap is irrelevant for item spacing.
+                '{{WRAPPER}} .arb-accordion' => 'row-gap: {{SIZE}}{{UNIT}};',
+                '{{WRAPPER}} .arb-acc-col'   => 'row-gap: {{SIZE}}{{UNIT}};',
+            ],
         ] );
 
         $this->add_control( 'close_others', [
@@ -436,7 +442,9 @@ class ARB_Accordion_Widget extends \Elementor\Widget_Base {
         echo '<div class="arb-acc-item">';
 
         // aria-controls + id pairing lets AT announce which region the button governs.
+        // type="button" prevents form submission when the accordion is inside a <form>.
         echo '<button class="arb-acc-header" '
+            . 'type="button" '
             . 'id="' . esc_attr( $header_id ) . '" '
             . 'aria-expanded="false" '
             . 'aria-controls="' . esc_attr( $body_id ) . '">';

@@ -93,7 +93,7 @@
         initAccordion( document );
     } );
 
-    if ( window.elementorFrontend ) {
+    if ( window.elementorFrontend && window.elementorFrontend.hooks ) {
         window.elementorFrontend.hooks.addAction(
             'frontend/element_ready/arb-accordion/default',
             function ( $scope ) {
