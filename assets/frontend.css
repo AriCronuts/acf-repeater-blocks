@@ -274,3 +274,13 @@
 }
 /* El icono permanece en el flujo — flex-shrink:0 ya definido en .arb-acc-icon */
 /* icon-left + full: el row-reverse de .arb-icon-left ya lo coloca a la izquierda */
+
+/* ── Reduced-motion: disable accordion animation ───────────────────────── */
+/* Without this, the JS transitionend listener that applies [hidden] after  */
+/* closing never fires when the OS/browser suppresses motion, leaving the   */
+/* collapsed panel in the accessibility tree (screen readers can read it).  */
+@media (prefers-reduced-motion: reduce) {
+    .arb-acc-body {
+        transition: none;
+    }
+}
