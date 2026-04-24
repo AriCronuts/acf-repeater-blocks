@@ -75,6 +75,17 @@
         body.style.opacity   = '0';
         header.setAttribute( 'aria-expanded', 'false' );
 
+        // If the transition is disabled (prefers-reduced-motion, browser
+        // override, etc.) transitionend will never fire, so apply [hidden]
+        // immediately — otherwise the closed panel stays in the a11y tree.
+        var dur = parseFloat( window.getComputedStyle( body ).transitionDuration ) || 0;
+        if ( dur === 0 ) {
+            body.setAttribute( 'hidden', '' );
+            body.style.maxHeight = '';
+            body.style.opacity   = '';
+            return;
+        }
+
         function onEnd( e ) {
             if ( e.propertyName !== 'max-height' ) return;
             body.removeEventListener( 'transitionend', onEnd );
@@ -97,7 +108,11 @@
         window.elementorFrontend.hooks.addAction(
             'frontend/element_ready/arb-accordion/default',
             function ( $scope ) {
-                initAccordion( $scope[0] || $scope );
+                // $scope is a jQuery object; [0] gives the raw DOM element.
+                // Guard against an empty collection to avoid passing a
+                // jQuery object (which has no querySelectorAll) to initAccordion.
+                var el = $scope[0];
+                if ( el ) initAccordion( el );
             }
         );
     }
