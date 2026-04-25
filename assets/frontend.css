@@ -251,11 +251,18 @@
     line-height: inherit;
 }
 
-/* Restore accessible keyboard focus indicator (same specificity as reset above,
- * placed after so it wins via source order — WCAG 2.4.7). */
-.arb-accordion .arb-acc-header:focus-visible {
+/* WCAG 2.4.7: always show focus ring for keyboard users.
+ * :focus is placed after the reset block (same specificity, later source = wins).
+ * The second rule suppresses it for pointer (mouse/touch) users in modern browsers
+ * via :focus:not(:focus-visible). Older browsers that lack :focus-visible ignore
+ * the second rule, so keyboard users always see the outline there too. */
+.arb-accordion .arb-acc-header:focus {
     outline: 2px solid currentColor;
     outline-offset: -2px;
+}
+.arb-accordion .arb-acc-header:focus:not(:focus-visible) {
+    outline: none;
+    box-shadow: none;
 }
 
 /* ── Alineación del título ─────────────────────────────────────────────── */
@@ -274,3 +281,14 @@
 }
 /* El icono permanece en el flujo — flex-shrink:0 ya definido en .arb-acc-icon */
 /* icon-left + full: el row-reverse de .arb-icon-left ya lo coloca a la izquierda */
+
+/* ── Reduced motion ────────────────────────────────────────────────────────── */
+
+/* When the OS/browser requests reduced motion, skip the accordion animation so
+ * that closeItem() in accordion.js also skips the transitionend listener and
+ * applies hidden immediately (it checks getComputedStyle transitionDuration). */
+@media (prefers-reduced-motion: reduce) {
+    .arb-acc-body {
+        transition: none;
+    }
+}

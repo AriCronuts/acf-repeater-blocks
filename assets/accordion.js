@@ -75,6 +75,18 @@
         body.style.opacity   = '0';
         header.setAttribute( 'aria-expanded', 'false' );
 
+        // When transition is disabled (e.g. prefers-reduced-motion sets transition:none),
+        // transitionend never fires. Detect this by checking the computed duration and
+        // apply hidden immediately so AT cannot traverse the collapsed content.
+        var computedDuration = parseFloat( window.getComputedStyle( body ).transitionDuration );
+        if ( ! computedDuration ) {
+            closeTransitionListeners.delete( body );
+            body.setAttribute( 'hidden', '' );
+            body.style.maxHeight = '';
+            body.style.opacity   = '';
+            return;
+        }
+
         function onEnd( e ) {
             if ( e.propertyName !== 'max-height' ) return;
             body.removeEventListener( 'transitionend', onEnd );
