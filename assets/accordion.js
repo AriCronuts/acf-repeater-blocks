@@ -56,28 +56,39 @@
         var header = item.querySelector( '.arb-acc-header' );
         if ( ! body || ! header ) return;
 
-        // Remove any previous transitionend listener before adding a new one.
-        // Without this, rapid closeItem() calls (e.g. from closeOthers) stack
-        // listeners on the same element — the orphaned listeners are never
-        // removed when the element is already closed and no transition fires.
+        // Remove any previous transitionend/transitioncancel listener before
+        // adding a new one. Without this, rapid closeItem() calls stack listeners.
         var prevListener = closeTransitionListeners.get( body );
         if ( prevListener ) {
-            body.removeEventListener( 'transitionend', prevListener );
+            body.removeEventListener( 'transitionend',   prevListener );
+            body.removeEventListener( 'transitioncancel', prevListener );
             closeTransitionListeners.delete( body );
+        }
+
+        item.classList.remove( 'is-open' );
+        header.setAttribute( 'aria-expanded', 'false' );
+
+        // When the user prefers reduced motion (or the browser disables transitions)
+        // transitionend never fires. Apply the hidden state immediately so the
+        // closed panel is removed from the tab order (WCAG 2.1 keyboard access).
+        if ( window.matchMedia( '(prefers-reduced-motion: reduce)' ).matches ) {
+            body.setAttribute( 'hidden', '' );
+            body.style.maxHeight = '';
+            body.style.opacity   = '';
+            return;
         }
 
         // Fija la altura actual antes de animar a 0
         body.style.maxHeight = body.scrollHeight + 'px';
         void body.offsetHeight;
 
-        item.classList.remove( 'is-open' );
         body.style.maxHeight = '0';
         body.style.opacity   = '0';
-        header.setAttribute( 'aria-expanded', 'false' );
 
         function onEnd( e ) {
             if ( e.propertyName !== 'max-height' ) return;
-            body.removeEventListener( 'transitionend', onEnd );
+            body.removeEventListener( 'transitionend',   onEnd );
+            body.removeEventListener( 'transitioncancel', onEnd );
             closeTransitionListeners.delete( body );
             if ( ! item.classList.contains( 'is-open' ) ) {
                 body.setAttribute( 'hidden', '' );
@@ -86,7 +97,8 @@
             }
         }
         closeTransitionListeners.set( body, onEnd );
-        body.addEventListener( 'transitionend', onEnd );
+        body.addEventListener( 'transitionend',   onEnd );
+        body.addEventListener( 'transitioncancel', onEnd );
     }
 
     document.addEventListener( 'DOMContentLoaded', function () {

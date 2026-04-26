@@ -274,3 +274,10 @@
 }
 /* El icono permanece en el flujo — flex-shrink:0 ya definido en .arb-acc-icon */
 /* icon-left + full: el row-reverse de .arb-icon-left ya lo coloca a la izquierda */
+
+/* ── Reduced motion — skip the height/opacity animation entirely (WCAG 2.3.3) ── */
+@media (prefers-reduced-motion: reduce) {
+    .arb-acc-body {
+        transition: none;
+    }
+}
