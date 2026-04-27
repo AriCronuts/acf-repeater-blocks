@@ -13,22 +13,23 @@
             if ( accordion.dataset.arbInit ) return;
             accordion.dataset.arbInit = '1';
 
-            accordion.querySelectorAll( '.arb-acc-header' ).forEach( function ( btn ) {
-                btn.addEventListener( 'click', function () {
-                    var item = btn.closest( '.arb-acc-item' );
-                    if ( ! item ) return;
-                    var isOpen      = item.classList.contains( 'is-open' );
-                    var closeOthers = accordion.dataset.closeOthers === '1';
+            // Use event delegation so items added dynamically after init are handled.
+            accordion.addEventListener( 'click', function ( e ) {
+                var btn = e.target.closest( '.arb-acc-header' );
+                if ( ! btn || ! accordion.contains( btn ) ) return;
+                var item = btn.closest( '.arb-acc-item' );
+                if ( ! item ) return;
+                var isOpen      = item.classList.contains( 'is-open' );
+                var closeOthers = accordion.dataset.closeOthers === '1';
 
-                    if ( closeOthers ) {
-                        accordion.querySelectorAll( '.arb-acc-item.is-open' ).forEach( function ( openEl ) {
-                            if ( openEl !== item ) closeItem( openEl );
-                        } );
-                    }
+                if ( closeOthers ) {
+                    accordion.querySelectorAll( '.arb-acc-item.is-open' ).forEach( function ( openEl ) {
+                        if ( openEl !== item ) closeItem( openEl );
+                    } );
+                }
 
-                    if ( ! isOpen ) { openItem( item ); }
-                    else            { closeItem( item ); }
-                } );
+                if ( ! isOpen ) { openItem( item ); }
+                else            { closeItem( item ); }
             } );
         } );
     }
@@ -74,6 +75,17 @@
         body.style.maxHeight = '0';
         body.style.opacity   = '0';
         header.setAttribute( 'aria-expanded', 'false' );
+
+        // If transitions are disabled (e.g. prefers-reduced-motion override from theme),
+        // transitionend will never fire. Apply hidden immediately in that case so the
+        // panel is correctly removed from the accessibility tree.
+        var duration = parseFloat( getComputedStyle( body ).transitionDuration ) || 0;
+        if ( ! duration ) {
+            body.setAttribute( 'hidden', '' );
+            body.style.maxHeight = '';
+            body.style.opacity   = '';
+            return;
+        }
 
         function onEnd( e ) {
             if ( e.propertyName !== 'max-height' ) return;
