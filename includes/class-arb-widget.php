@@ -1218,7 +1218,7 @@ class ARB_Widget extends \Elementor\Widget_Base {
                 case 'url':  return esc_url( (string) $val );
                 case 'attr': return esc_attr( (string) $val );
                 case 'kses': return wp_kses_post( (string) $val );
-                case 'raw':  return current_user_can('edit_posts') ? (string)$val : esc_html((string)$val);
+                case 'raw':  return wp_kses_post( (string) $val );
                 default:     return esc_html( (string) $val );
             }
         }, $tpl ); // phpcs:ignore
