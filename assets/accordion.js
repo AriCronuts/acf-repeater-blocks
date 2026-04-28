@@ -7,6 +7,13 @@
     // listener before adding a new one, preventing unbounded listener stacking.
     var closeTransitionListeners = new WeakMap();
 
+    // Same pattern for the open transitionend listener: after the open animation
+    // completes we release the hard pixel max-height so content that grows after
+    // opening (lazy images, dynamic HTML) is not clipped.  closeItem() must also
+    // cancel a pending open listener before starting the close animation so the
+    // delayed callback cannot set max-height:none mid-collapse.
+    var openTransitionListeners = new WeakMap();
+
     function initAccordion( scope ) {
         var root = scope || document;
         root.querySelectorAll( '.arb-accordion' ).forEach( function ( accordion ) {
@@ -44,10 +51,19 @@
 
         body.removeAttribute( 'hidden' );
 
+        // Cancel any previous open transitionend listener before adding a new one.
+        var prevOpenListener = openTransitionListeners.get( body );
+        if ( prevOpenListener ) {
+            body.removeEventListener( 'transitionend', prevOpenListener );
+            openTransitionListeners.delete( body );
+        }
+
         if ( prefersReducedMotion() ) {
             // Skip animation: show content and update state synchronously.
+            // Use 'none' (not a pixel value) so content that grows after opening
+            // — lazy-loaded images, dynamic HTML — is never clipped.
             item.classList.add( 'is-open' );
-            body.style.maxHeight = body.scrollHeight + 'px';
+            body.style.maxHeight = 'none';
             body.style.opacity   = '1';
             header.setAttribute( 'aria-expanded', 'true' );
             return;
@@ -63,6 +79,20 @@
         body.style.maxHeight = body.scrollHeight + 'px';
         body.style.opacity   = '1';
         header.setAttribute( 'aria-expanded', 'true' );
+
+        // After the open animation completes, release the hard pixel max-height.
+        // This allows content that grows after opening (e.g. lazy-loaded images,
+        // injected HTML) to expand freely instead of being clipped by overflow:hidden.
+        function onOpenEnd( e ) {
+            if ( e.propertyName !== 'max-height' ) return;
+            body.removeEventListener( 'transitionend', onOpenEnd );
+            openTransitionListeners.delete( body );
+            if ( item.classList.contains( 'is-open' ) ) {
+                body.style.maxHeight = 'none';
+            }
+        }
+        openTransitionListeners.set( body, onOpenEnd );
+        body.addEventListener( 'transitionend', onOpenEnd );
     }
 
     function closeItem( item ) {
@@ -78,6 +108,14 @@
         if ( prevListener ) {
             body.removeEventListener( 'transitionend', prevListener );
             closeTransitionListeners.delete( body );
+        }
+
+        // Cancel any pending open transitionend listener so it cannot fire mid-collapse
+        // and set max-height:none while the close animation is running.
+        var prevOpenListener = openTransitionListeners.get( body );
+        if ( prevOpenListener ) {
+            body.removeEventListener( 'transitionend', prevOpenListener );
+            openTransitionListeners.delete( body );
         }
 
         if ( prefersReducedMotion() ) {
