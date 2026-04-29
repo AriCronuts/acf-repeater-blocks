@@ -1419,15 +1419,16 @@ class ARB_Widget extends \Elementor\Widget_Base {
             $img_html = $this->acc_render_image( $row[ $img_field ] );
         }
 
+        $header_id    = 'arb-acc-header-' . $this->get_id() . '-' . $idx;
         $header_class = 'arb-acc-header arb-acc-header--' . $title_align;
 
         echo '<div class="arb-acc-item">';
-        echo '<button class="' . esc_attr( $header_class ) . '" aria-expanded="false" aria-controls="' . esc_attr( $body_id ) . '">';
+        echo '<button type="button" class="' . esc_attr( $header_class ) . '" id="' . esc_attr( $header_id ) . '" aria-expanded="false" aria-controls="' . esc_attr( $body_id ) . '">';
         echo '<span class="arb-acc-question">' . $question . '</span>';
-        echo '<span class="arb-acc-icon arb-acc-icon--open">'  . $icon_open  . '</span>';
-        echo '<span class="arb-acc-icon arb-acc-icon--close">' . $icon_close . '</span>';
+        echo '<span class="arb-acc-icon arb-acc-icon--open" aria-hidden="true">'  . $icon_open  . '</span>';
+        echo '<span class="arb-acc-icon arb-acc-icon--close" aria-hidden="true">' . $icon_close . '</span>';
         echo '</button>';
-        echo '<div class="arb-acc-body" id="' . esc_attr( $body_id ) . '" hidden>';
+        echo '<div class="arb-acc-body" id="' . esc_attr( $body_id ) . '" role="region" aria-labelledby="' . esc_attr( $header_id ) . '" hidden>';
         echo '<div class="arb-acc-content">' . $answer . $img_html . '</div>';
         echo '</div>';
         echo '</div>';

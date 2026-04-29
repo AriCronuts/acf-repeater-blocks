@@ -116,9 +116,13 @@
         body.addEventListener( 'transitionend', onEnd );
     }
 
-    document.addEventListener( 'DOMContentLoaded', function () {
+    if ( document.readyState === 'loading' ) {
+        document.addEventListener( 'DOMContentLoaded', function () {
+            initAccordion( document );
+        } );
+    } else {
         initAccordion( document );
-    } );
+    }
 
     function registerElementorHook() {
         window.elementorFrontend.hooks.addAction(
