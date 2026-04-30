@@ -436,10 +436,16 @@ class ARB_Accordion_Widget extends \Elementor\Widget_Base {
         echo '<div class="arb-acc-item">';
 
         // aria-controls + id pairing lets AT announce which region the button governs.
+        // aria-label fallback: when no question text is configured the button would
+        // have zero accessible name (icon spans are aria-hidden), violating WCAG 4.1.2.
+        $fallback_label = '' === $question
+            ? ' aria-label="' . esc_attr( sprintf( 'Item %d', $idx + 1 ) ) . '"'
+            : '';
         echo '<button type="button" class="arb-acc-header" '
             . 'id="' . esc_attr( $header_id ) . '" '
             . 'aria-expanded="false" '
-            . 'aria-controls="' . esc_attr( $body_id ) . '">';
+            . 'aria-controls="' . esc_attr( $body_id ) . '"'
+            . $fallback_label . '>';
         echo '<span class="arb-acc-question">' . $question . '</span>';
         echo '<span class="arb-acc-icon arb-acc-icon--open" aria-hidden="true">'  . $icon_open  . '</span>';
         echo '<span class="arb-acc-icon arb-acc-icon--close" aria-hidden="true">' . $icon_close . '</span>';

@@ -186,6 +186,14 @@
     transition: var(--arb-transition-acc);
 }
 
+/* Open state: unconstrained height so late-loading content (e.g. lazy images)
+ * is never clipped. JS clears its inline max-height after the open transition
+ * and this rule takes over. */
+.arb-acc-item.is-open .arb-acc-body {
+    max-height: none;
+    opacity: 1;
+}
+
 .arb-acc-content {
     padding: 0 var(--arb-padding-body) var(--arb-padding-body);
 }

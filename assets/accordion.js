@@ -2,10 +2,18 @@
 (function () {
     'use strict';
 
-    // Tracks the pending transitionend listener for each body element so that
-    // a rapid second closeItem() call (e.g. via closeOthers) removes the first
-    // listener before adding a new one, preventing unbounded listener stacking.
-    var closeTransitionListeners = new WeakMap();
+    // Tracks the pending transitionend listener (open OR close) for each body
+    // element. Any new animation cancels the previous listener before registering
+    // its own, preventing stale listeners when the user toggles rapidly.
+    var pendingTransitionListeners = new WeakMap();
+
+    function cancelPendingTransition( body ) {
+        var prev = pendingTransitionListeners.get( body );
+        if ( prev ) {
+            body.removeEventListener( 'transitionend', prev );
+            pendingTransitionListeners.delete( body );
+        }
+    }
 
     function initAccordion( scope ) {
         var root = scope || document;
@@ -42,13 +50,18 @@
         var header = item.querySelector( '.arb-acc-header' );
         if ( ! body || ! header ) return;
 
+        // Cancel any in-flight close transition before starting the open.
+        cancelPendingTransition( body );
+
         body.removeAttribute( 'hidden' );
 
         if ( prefersReducedMotion() ) {
-            // Skip animation: show content and update state synchronously.
+            // No animation: add the class and let the CSS open-state rule
+            // (.arb-acc-item.is-open .arb-acc-body { max-height: none }) handle
+            // height. Clearing inline styles ensures the CSS rule is not masked.
             item.classList.add( 'is-open' );
-            body.style.maxHeight = body.scrollHeight + 'px';
-            body.style.opacity   = '1';
+            body.style.maxHeight = '';
+            body.style.opacity   = '';
             header.setAttribute( 'aria-expanded', 'true' );
             return;
         }
@@ -63,6 +76,22 @@
         body.style.maxHeight = body.scrollHeight + 'px';
         body.style.opacity   = '1';
         header.setAttribute( 'aria-expanded', 'true' );
+
+        // After the open transition completes, clear the fixed inline max-height
+        // so the CSS open-state rule (max-height: none) takes over. Without this,
+        // lazy-loaded images or dynamic content taller than scrollHeight at open
+        // time would be clipped by the frozen inline value.
+        function onOpenEnd( e ) {
+            if ( e.propertyName !== 'max-height' ) return;
+            body.removeEventListener( 'transitionend', onOpenEnd );
+            pendingTransitionListeners.delete( body );
+            if ( item.classList.contains( 'is-open' ) ) {
+                body.style.maxHeight = '';
+                body.style.opacity   = '';
+            }
+        }
+        pendingTransitionListeners.set( body, onOpenEnd );
+        body.addEventListener( 'transitionend', onOpenEnd );
     }
 
     function closeItem( item ) {
@@ -70,15 +99,8 @@
         var header = item.querySelector( '.arb-acc-header' );
         if ( ! body || ! header ) return;
 
-        // Remove any previous transitionend listener before adding a new one.
-        // Without this, rapid closeItem() calls (e.g. from closeOthers) stack
-        // listeners on the same element — the orphaned listeners are never
-        // removed when the element is already closed and no transition fires.
-        var prevListener = closeTransitionListeners.get( body );
-        if ( prevListener ) {
-            body.removeEventListener( 'transitionend', prevListener );
-            closeTransitionListeners.delete( body );
-        }
+        // Cancel any in-flight open transition before starting the close.
+        cancelPendingTransition( body );
 
         if ( prefersReducedMotion() ) {
             // Skip animation: hide content and update state synchronously.
@@ -93,7 +115,8 @@
             return;
         }
 
-        // Fija la altura actual antes de animar a 0
+        // Pin the current natural height (max-height: none after open transition
+        // was cleared) so the collapse animation has a defined numeric start point.
         body.style.maxHeight = body.scrollHeight + 'px';
         void body.offsetHeight;
 
@@ -102,18 +125,18 @@
         body.style.opacity   = '0';
         header.setAttribute( 'aria-expanded', 'false' );
 
-        function onEnd( e ) {
+        function onCloseEnd( e ) {
             if ( e.propertyName !== 'max-height' ) return;
-            body.removeEventListener( 'transitionend', onEnd );
-            closeTransitionListeners.delete( body );
+            body.removeEventListener( 'transitionend', onCloseEnd );
+            pendingTransitionListeners.delete( body );
             if ( ! item.classList.contains( 'is-open' ) ) {
                 body.setAttribute( 'hidden', '' );
                 body.style.maxHeight = '';
                 body.style.opacity   = '';
             }
         }
-        closeTransitionListeners.set( body, onEnd );
-        body.addEventListener( 'transitionend', onEnd );
+        pendingTransitionListeners.set( body, onCloseEnd );
+        body.addEventListener( 'transitionend', onCloseEnd );
     }
 
     document.addEventListener( 'DOMContentLoaded', function () {
