@@ -47,7 +47,9 @@
         if ( prefersReducedMotion() ) {
             // Skip animation: show content and update state synchronously.
             item.classList.add( 'is-open' );
-            body.style.maxHeight = body.scrollHeight + 'px';
+            // Use 'none' (not a fixed px value) so the panel can grow if its
+            // content changes height after opening (lazy images, dynamic HTML).
+            body.style.maxHeight = 'none';
             body.style.opacity   = '1';
             header.setAttribute( 'aria-expanded', 'true' );
             return;
@@ -63,6 +65,17 @@
         body.style.maxHeight = body.scrollHeight + 'px';
         body.style.opacity   = '1';
         header.setAttribute( 'aria-expanded', 'true' );
+
+        // Release the fixed height after the open animation so the panel can
+        // grow freely if its content changes (lazy-loaded images, dynamic HTML).
+        function onOpenEnd( e ) {
+            if ( e.propertyName !== 'max-height' ) return;
+            body.removeEventListener( 'transitionend', onOpenEnd );
+            if ( item.classList.contains( 'is-open' ) ) {
+                body.style.maxHeight = 'none';
+            }
+        }
+        body.addEventListener( 'transitionend', onOpenEnd );
     }
 
     function closeItem( item ) {
