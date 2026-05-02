@@ -47,7 +47,7 @@
         if ( prefersReducedMotion() ) {
             // Skip animation: show content and update state synchronously.
             item.classList.add( 'is-open' );
-            body.style.maxHeight = body.scrollHeight + 'px';
+            body.style.maxHeight = 'none';
             body.style.opacity   = '1';
             header.setAttribute( 'aria-expanded', 'true' );
             return;
@@ -63,6 +63,16 @@
         body.style.maxHeight = body.scrollHeight + 'px';
         body.style.opacity   = '1';
         header.setAttribute( 'aria-expanded', 'true' );
+
+        // Release the pixel cap once the open animation finishes so content
+        // is never clipped after a viewport resize or a lazy image load.
+        body.addEventListener( 'transitionend', function onOpenEnd( e ) {
+            if ( e.propertyName !== 'max-height' ) return;
+            body.removeEventListener( 'transitionend', onOpenEnd );
+            if ( item.classList.contains( 'is-open' ) ) {
+                body.style.maxHeight = 'none';
+            }
+        } );
     }
 
     function closeItem( item ) {

@@ -238,7 +238,6 @@
     text-decoration: none;
     border-radius: 0;
     box-shadow: none;
-    outline: none;
     padding: var(--arb-padding-acc);
     display: flex;
     width: 100%;
@@ -251,8 +250,17 @@
     line-height: inherit;
 }
 
-/* Restore accessible keyboard focus indicator (same specificity as reset above,
- * placed after so it wins via source order — WCAG 2.4.7). */
+/* Suppress focus ring for pointer (mouse/touch) interactions only.
+ * :focus:not(:focus-visible) is invalid in browsers that don't support
+ * :focus-visible, so those browsers ignore this rule and keep the native
+ * focus outline — satisfying WCAG 2.4.7 in all browsers. */
+.arb-accordion .arb-acc-header:focus:not(:focus-visible) {
+    outline: none;
+    box-shadow: none;
+}
+
+/* Keyboard focus indicator (WCAG 2.4.7). Same specificity as the reset above;
+ * wins via source order in modern browsers. */
 .arb-accordion .arb-acc-header:focus-visible {
     outline: 2px solid currentColor;
     outline-offset: -2px;
