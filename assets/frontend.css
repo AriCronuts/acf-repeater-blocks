@@ -238,7 +238,6 @@
     text-decoration: none;
     border-radius: 0;
     box-shadow: none;
-    outline: none;
     padding: var(--arb-padding-acc);
     display: flex;
     width: 100%;
@@ -256,6 +255,13 @@
 .arb-accordion .arb-acc-header:focus-visible {
     outline: 2px solid currentColor;
     outline-offset: -2px;
+}
+
+/* Suppress Elementor's default outline only for mouse/touch focus.
+ * Browsers that do not support :focus-visible ignore this entire rule and
+ * keep their native outline — keyboard users always get a visible indicator. */
+.arb-accordion .arb-acc-header:focus:not(:focus-visible) {
+    outline: none;
 }
 
 /* ── Alineación del título ─────────────────────────────────────────────── */

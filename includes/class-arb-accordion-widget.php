@@ -483,20 +483,25 @@ class ARB_Accordion_Widget extends \Elementor\Widget_Base {
     private function sanitize_svg( string $raw ): string {
         if ( ! $raw ) return '';
 
+        // stroke-linecap, stroke-linejoin, and opacity are commonly present on
+        // path/line/polyline/polygon in icon libraries (Heroicons, Lucide, etc.).
+        // Without them wp_kses silently strips the attributes, altering icon appearance.
+        $stroke_shape_attrs = [
+            'fill' => true, 'stroke' => true, 'stroke-width' => true,
+            'stroke-linecap' => true, 'stroke-linejoin' => true, 'opacity' => true,
+        ];
         $allowed = [
             'svg'      => [ 'xmlns' => true, 'width' => true, 'height' => true, 'viewbox' => true,
                             'fill' => true, 'stroke' => true, 'stroke-width' => true,
                             'stroke-linecap' => true, 'stroke-linejoin' => true,
                             'aria-hidden' => true, 'role' => true, 'class' => true ],
-            'path'     => [ 'd' => true, 'fill' => true, 'stroke' => true, 'stroke-width' => true ],
-            'line'     => [ 'x1' => true, 'y1' => true, 'x2' => true, 'y2' => true,
-                            'stroke' => true, 'stroke-width' => true ],
-            'circle'   => [ 'cx' => true, 'cy' => true, 'r' => true, 'fill' => true, 'stroke' => true ],
-            'rect'     => [ 'x' => true, 'y' => true, 'width' => true, 'height' => true,
-                            'rx' => true, 'ry' => true, 'fill' => true, 'stroke' => true ],
-            'polyline' => [ 'points' => true, 'fill' => true, 'stroke' => true ],
-            'polygon'  => [ 'points' => true, 'fill' => true, 'stroke' => true ],
-            'g'        => [ 'fill' => true, 'stroke' => true, 'transform' => true ],
+            'path'     => array_merge( $stroke_shape_attrs, [ 'd' => true ] ),
+            'line'     => array_merge( $stroke_shape_attrs, [ 'x1' => true, 'y1' => true, 'x2' => true, 'y2' => true ] ),
+            'circle'   => array_merge( $stroke_shape_attrs, [ 'cx' => true, 'cy' => true, 'r' => true ] ),
+            'rect'     => array_merge( $stroke_shape_attrs, [ 'x' => true, 'y' => true, 'width' => true, 'height' => true, 'rx' => true, 'ry' => true ] ),
+            'polyline' => array_merge( $stroke_shape_attrs, [ 'points' => true ] ),
+            'polygon'  => array_merge( $stroke_shape_attrs, [ 'points' => true ] ),
+            'g'        => [ 'fill' => true, 'stroke' => true, 'transform' => true, 'opacity' => true ],
         ];
 
         return wp_kses( $raw, $allowed );

@@ -47,7 +47,8 @@
         if ( prefersReducedMotion() ) {
             // Skip animation: show content and update state synchronously.
             item.classList.add( 'is-open' );
-            body.style.maxHeight = body.scrollHeight + 'px';
+            // Use 'none' so lazy-loaded images that arrive after open are not clipped.
+            body.style.maxHeight = 'none';
             body.style.opacity   = '1';
             header.setAttribute( 'aria-expanded', 'true' );
             return;
@@ -63,6 +64,19 @@
         body.style.maxHeight = body.scrollHeight + 'px';
         body.style.opacity   = '1';
         header.setAttribute( 'aria-expanded', 'true' );
+
+        // After the open animation completes, remove the fixed pixel cap so
+        // lazy-loaded images (or any content that grows after open) are not
+        // clipped by overflow: hidden.  The is-open guard prevents this from
+        // clobbering a close animation that started before we got here.
+        function onOpenEnd( e ) {
+            if ( e.propertyName !== 'max-height' ) return;
+            body.removeEventListener( 'transitionend', onOpenEnd );
+            if ( item.classList.contains( 'is-open' ) ) {
+                body.style.maxHeight = 'none';
+            }
+        }
+        body.addEventListener( 'transitionend', onOpenEnd );
     }
 
     function closeItem( item ) {
