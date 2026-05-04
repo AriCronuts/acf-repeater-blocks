@@ -42,14 +42,24 @@
         var header = item.querySelector( '.arb-acc-header' );
         if ( ! body || ! header ) return;
 
+        // Clear any stale close-transition listener so it does not fire during
+        // the open animation (rapid close→open sequence).
+        var prevListener = closeTransitionListeners.get( body );
+        if ( prevListener ) {
+            body.removeEventListener( 'transitionend', prevListener );
+            closeTransitionListeners.delete( body );
+        }
+
+        // Update ARIA and remove hidden together: AT must never see the panel
+        // as accessible (hidden removed) while aria-expanded still says false.
         body.removeAttribute( 'hidden' );
+        header.setAttribute( 'aria-expanded', 'true' );
 
         if ( prefersReducedMotion() ) {
             // Skip animation: show content and update state synchronously.
             item.classList.add( 'is-open' );
             body.style.maxHeight = body.scrollHeight + 'px';
             body.style.opacity   = '1';
-            header.setAttribute( 'aria-expanded', 'true' );
             return;
         }
 
@@ -62,7 +72,6 @@
         item.classList.add( 'is-open' );
         body.style.maxHeight = body.scrollHeight + 'px';
         body.style.opacity   = '1';
-        header.setAttribute( 'aria-expanded', 'true' );
     }
 
     function closeItem( item ) {
