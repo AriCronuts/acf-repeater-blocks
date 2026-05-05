@@ -54,8 +54,10 @@
 
         if ( prefersReducedMotion() ) {
             // Skip animation: show content and update state synchronously.
+            // Use 'none' (not scrollHeight px) so content added after open
+            // (e.g. lazy-loaded images) is never clipped.
             item.classList.add( 'is-open' );
-            body.style.maxHeight = body.scrollHeight + 'px';
+            body.style.maxHeight = 'none';
             body.style.opacity   = '1';
             header.setAttribute( 'aria-expanded', 'true' );
             return;
