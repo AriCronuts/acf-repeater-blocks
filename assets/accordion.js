@@ -6,6 +6,9 @@
     // a rapid second closeItem() call (e.g. via closeOthers) removes the first
     // listener before adding a new one, preventing unbounded listener stacking.
     var closeTransitionListeners = new WeakMap();
+    // Same guard for the open-animation listener so closeItem() (or a second
+    // openItem()) can remove an in-flight onOpenEnd before adding a new one.
+    var openTransitionListeners  = new WeakMap();
 
     function initAccordion( scope ) {
         var root = scope || document;
@@ -37,6 +40,14 @@
         return window.matchMedia && window.matchMedia( '(prefers-reduced-motion: reduce)' ).matches;
     }
 
+    // Returns the first transition-duration value in seconds (0 when none).
+    // Used to detect CSS overrides (e.g. theme !important) that suppress
+    // transitions outside of the prefers-reduced-motion media query, which
+    // would prevent transitionend from ever firing.
+    function getTransitionDuration( el ) {
+        return parseFloat( window.getComputedStyle( el ).transitionDuration ) || 0;
+    }
+
     function openItem( item ) {
         var body   = item.querySelector( '.arb-acc-body' );
         var header = item.querySelector( '.arb-acc-header' );
@@ -48,6 +59,14 @@
         if ( prevClose ) {
             body.removeEventListener( 'transitionend', prevClose );
             closeTransitionListeners.delete( body );
+        }
+
+        // Cancel any in-flight open listener (e.g. openItem called again before
+        // the previous open animation completed and its transitionend never fired).
+        var prevOpen = openTransitionListeners.get( body );
+        if ( prevOpen ) {
+            body.removeEventListener( 'transitionend', prevOpen );
+            openTransitionListeners.delete( body );
         }
 
         body.removeAttribute( 'hidden' );
@@ -72,15 +91,26 @@
         body.style.opacity   = '1';
         header.setAttribute( 'aria-expanded', 'true' );
 
+        // If transitions are suppressed by a CSS override other than the
+        // prefers-reduced-motion media query (e.g. theme !important rule),
+        // transitionend will never fire — lift max-height synchronously so
+        // lazy-loaded content that grows the panel is never clipped.
+        if ( ! getTransitionDuration( body ) ) {
+            body.style.maxHeight = 'none';
+            return;
+        }
+
         // Lift the fixed max-height once the open animation ends so that
         // content added after open (e.g. loading="lazy" images) is never clipped.
         function onOpenEnd( e ) {
             if ( e.propertyName !== 'max-height' ) return;
             body.removeEventListener( 'transitionend', onOpenEnd );
+            openTransitionListeners.delete( body );
             if ( item.classList.contains( 'is-open' ) ) {
                 body.style.maxHeight = 'none';
             }
         }
+        openTransitionListeners.set( body, onOpenEnd );
         body.addEventListener( 'transitionend', onOpenEnd );
     }
 
@@ -97,6 +127,14 @@
         if ( prevListener ) {
             body.removeEventListener( 'transitionend', prevListener );
             closeTransitionListeners.delete( body );
+        }
+
+        // Cancel any in-flight open listener so it cannot race with the close
+        // animation's transitionend and set maxHeight = 'none' unexpectedly.
+        var prevOpen = openTransitionListeners.get( body );
+        if ( prevOpen ) {
+            body.removeEventListener( 'transitionend', prevOpen );
+            openTransitionListeners.delete( body );
         }
 
         if ( prefersReducedMotion() ) {
@@ -120,6 +158,17 @@
         body.style.maxHeight = '0';
         body.style.opacity   = '0';
         header.setAttribute( 'aria-expanded', 'false' );
+
+        // If transitions are suppressed by a CSS override other than the
+        // prefers-reduced-motion media query, transitionend will never fire.
+        // Restore hidden synchronously so the panel body is removed from the
+        // accessibility tree and screen readers cannot read closed content.
+        if ( ! getTransitionDuration( body ) ) {
+            body.setAttribute( 'hidden', '' );
+            body.style.maxHeight = '';
+            body.style.opacity   = '';
+            return;
+        }
 
         function onEnd( e ) {
             if ( e.propertyName !== 'max-height' ) return;
