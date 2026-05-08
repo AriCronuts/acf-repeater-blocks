@@ -1202,8 +1202,10 @@ class ARB_Widget extends \Elementor\Widget_Base {
 
         $tpl = preg_replace( '/[\s\/]+on\w+\s*=\s*(?:"[^"]*"|\'[^\']*\'|[^\s>\/]*)/i', '', $tpl );
         $tpl = preg_replace( '/<script\b[^>]*>.*?<\/script\s*>/is', '', $tpl );
-        // Neutraliza javascript: y data: en atributos href, src, action, formaction, xlink:href
-        $tpl = preg_replace( '/(href|src|action|formaction|xlink:href)\s*=\s*(["\'])\s*(?:javascript|data)\s*:/i', '$1=$2#', $tpl );
+        // Neutraliza javascript: y data: en atributos href, src, action, formaction, xlink:href y data (<object>)
+        $tpl = preg_replace( '/(href|src|data|action|formaction|xlink:href)\s*=\s*(["\'])\s*(?:javascript|data)\s*:/i', '$1=$2#', $tpl );
+        // Elimina srcdoc en <iframe> — permite HTML arbitrario en contexto same-origin
+        $tpl = preg_replace( '/\bsrcdoc\s*=\s*(?:"[^"]*"|\'[^\']*\'|[^\s>\/]*)/i', '', $tpl );
         // Neutraliza javascript: y data: en url() de atributos style
         $tpl = preg_replace( '/url\s*\(\s*["\']?\s*(?:javascript|data)\s*:/i', 'url(#', $tpl );
 
