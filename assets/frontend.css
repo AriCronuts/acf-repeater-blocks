@@ -217,6 +217,8 @@
 @media (max-width: 767px) {
     .arb-accordion.arb-accordion-cols-2 {
         flex-direction: column;
+        /* Reset column gap to item gap so stacked groups have uniform spacing */
+        gap: var(--arb-gap-items);
     }
     .arb-accordion.arb-accordion-cols-2 .arb-acc-col {
         width: 100%;

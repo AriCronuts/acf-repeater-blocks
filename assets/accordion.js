@@ -192,7 +192,7 @@
         window.elementorFrontend.hooks.addAction(
             'frontend/element_ready/arb-accordion/default',
             function ( $scope ) {
-                initAccordion( $scope[0] || $scope );
+                initAccordion( $scope[0] || document );
             }
         );
     }
