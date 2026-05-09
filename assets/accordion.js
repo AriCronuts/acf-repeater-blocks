@@ -73,8 +73,11 @@
 
         if ( prefersReducedMotion() ) {
             // Skip animation: show content and update state synchronously.
+            // Use 'none' (not scrollHeight px) so dynamically-added content
+            // (e.g. lazy-loaded images) is never clipped — mirrors the
+            // onOpenEnd cleanup done at the end of the animated path.
             item.classList.add( 'is-open' );
-            body.style.maxHeight = body.scrollHeight + 'px';
+            body.style.maxHeight = 'none';
             body.style.opacity   = '1';
             header.setAttribute( 'aria-expanded', 'true' );
             return;
