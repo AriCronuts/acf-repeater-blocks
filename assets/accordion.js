@@ -78,6 +78,7 @@
             // onOpenEnd cleanup done at the end of the animated path.
             item.classList.add( 'is-open' );
             body.style.maxHeight = 'none';
+            body.style.overflow  = 'visible';
             body.style.opacity   = '1';
             header.setAttribute( 'aria-expanded', 'true' );
             return;
@@ -100,6 +101,7 @@
         // lazy-loaded content that grows the panel is never clipped.
         if ( ! getTransitionDuration( body ) ) {
             body.style.maxHeight = 'none';
+            body.style.overflow  = 'visible';
             return;
         }
 
@@ -111,6 +113,7 @@
             openTransitionListeners.delete( body );
             if ( item.classList.contains( 'is-open' ) ) {
                 body.style.maxHeight = 'none';
+                body.style.overflow  = 'visible';
             }
         }
         openTransitionListeners.set( body, onOpenEnd );
@@ -139,6 +142,10 @@
             body.removeEventListener( 'transitionend', prevOpen );
             openTransitionListeners.delete( body );
         }
+
+        // Restore overflow:hidden (CSS value) so the close animation clips
+        // correctly. This reverses the 'visible' set at end of openItem.
+        body.style.overflow = '';
 
         if ( prefersReducedMotion() ) {
             // Skip animation: hide content and update state synchronously.
