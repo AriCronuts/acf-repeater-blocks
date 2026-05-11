@@ -436,10 +436,17 @@ class ARB_Accordion_Widget extends \Elementor\Widget_Base {
         echo '<div class="arb-acc-item">';
 
         // aria-controls + id pairing lets AT announce which region the button governs.
+        // aria-label is added only when the visible question text is empty so the
+        // button always has an accessible name (WCAG 4.1.2).
+        $extra_attrs = $question === ''
+            ? ' aria-label="' . esc_attr( sprintf( __( 'Item %d', 'acf-repeater-blocks' ), $idx + 1 ) ) . '"'
+            : '';
         echo '<button type="button" class="arb-acc-header" '
             . 'id="' . esc_attr( $header_id ) . '" '
             . 'aria-expanded="false" '
-            . 'aria-controls="' . esc_attr( $body_id ) . '">';
+            . 'aria-controls="' . esc_attr( $body_id ) . '"'
+            . $extra_attrs
+            . '>';
         echo '<span class="arb-acc-question">' . $question . '</span>';
         echo '<span class="arb-acc-icon arb-acc-icon--open" aria-hidden="true">'  . $icon_open  . '</span>';
         echo '<span class="arb-acc-icon arb-acc-icon--close" aria-hidden="true">' . $icon_close . '</span>';
