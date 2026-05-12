@@ -40,12 +40,24 @@
         return window.matchMedia && window.matchMedia( '(prefers-reduced-motion: reduce)' ).matches;
     }
 
-    // Returns the first transition-duration value in seconds (0 when none).
-    // Used to detect CSS overrides (e.g. theme !important) that suppress
-    // transitions outside of the prefers-reduced-motion media query, which
-    // would prevent transitionend from ever firing.
-    function getTransitionDuration( el ) {
-        return parseFloat( window.getComputedStyle( el ).transitionDuration ) || 0;
+    // Returns the transition-duration for max-height specifically (0 when absent/none).
+    // Reading the first transitionDuration value alone is unreliable: it maps to whichever
+    // property appears first in transitionProperty, not necessarily max-height.  If a theme
+    // replaces the transition with e.g. `transition: opacity .3s !important`, the first
+    // duration is non-zero but max-height has no transition — transitionend for max-height
+    // never fires, onEnd/onOpenEnd never run, `hidden` is never restored on close, and
+    // closed panels remain in the accessibility tree (screen readers can read closed content).
+    function getMaxHeightTransitionDuration( el ) {
+        var style     = window.getComputedStyle( el );
+        var props     = ( style.transitionProperty || '' ).split( ',' );
+        var durations = ( style.transitionDuration  || '' ).split( ',' );
+        for ( var i = 0; i < props.length; i++ ) {
+            var prop = props[ i ].trim();
+            if ( prop === 'max-height' || prop === 'all' ) {
+                return parseFloat( durations[ i ] ) || 0;
+            }
+        }
+        return 0;
     }
 
     function openItem( item ) {
@@ -99,7 +111,7 @@
         // prefers-reduced-motion media query (e.g. theme !important rule),
         // transitionend will never fire — lift max-height synchronously so
         // lazy-loaded content that grows the panel is never clipped.
-        if ( ! getTransitionDuration( body ) ) {
+        if ( ! getMaxHeightTransitionDuration( body ) ) {
             body.style.maxHeight = 'none';
             body.style.overflow  = 'visible';
             return;
@@ -173,7 +185,7 @@
         // prefers-reduced-motion media query, transitionend will never fire.
         // Restore hidden synchronously so the panel body is removed from the
         // accessibility tree and screen readers cannot read closed content.
-        if ( ! getTransitionDuration( body ) ) {
+        if ( ! getMaxHeightTransitionDuration( body ) ) {
             body.setAttribute( 'hidden', '' );
             body.style.maxHeight = '';
             body.style.opacity   = '';
