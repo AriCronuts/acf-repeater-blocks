@@ -375,6 +375,7 @@ class ARB_Accordion_Widget extends \Elementor\Widget_Base {
                 array_slice( $rows, $mid, null, true ),
             ];
             foreach ( $col_sets as $col_rows ) {
+                if ( empty( $col_rows ) ) continue;
                 echo '<div class="arb-acc-col">';
                 foreach ( $col_rows as $idx => $row ) {
                     $this->render_accordion_item( $idx, $row, $q_field, $a_field, $img_field, $icon_open, $icon_close );
