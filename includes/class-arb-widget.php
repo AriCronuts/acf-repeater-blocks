@@ -587,29 +587,18 @@ class ARB_Widget extends \Elementor\Widget_Base {
             'condition' => [ 'skin' => 'accordion' ],
         ] );
 
-        $this->add_control( 'acc_separate_containers', [
-            'label'        => 'Contenedores separados',
-            'type'         => Controls_Manager::SWITCHER,
-            'label_on'     => 'Sí',
-            'label_off'    => 'No',
-            'return_value' => 'yes',
-            'description'  => 'Aplica fondo, borde y radio independientes a la pregunta y la respuesta.',
-        ] );
-
-        $this->add_group_control( \Elementor\Group_Control_Background::get_type(), [
-            'name'      => 'acc_item_background',
+        $this->add_control( 'acc_item_bg', [
             'label'     => 'Fondo',
-            'types'     => [ 'classic', 'gradient' ],
-            'selector'  => '{{WRAPPER}} .arb-acc-item',
-            'condition' => [ 'acc_separate_containers!' => 'yes' ],
+            'type'      => Controls_Manager::COLOR,
+            'global'    => [ 'active' => true ],
+            'selectors' => [ '{{WRAPPER}} .arb-acc-item' => 'background-color: {{VALUE}};' ],
         ] );
 
-        $this->add_group_control( \Elementor\Group_Control_Background::get_type(), [
-            'name'      => 'acc_item_background_active',
+        $this->add_control( 'acc_item_bg_active', [
             'label'     => 'Fondo cuando está abierto',
-            'types'     => [ 'classic', 'gradient' ],
-            'selector'  => '{{WRAPPER}} .arb-acc-item.is-open',
-            'condition' => [ 'acc_separate_containers!' => 'yes' ],
+            'type'      => Controls_Manager::COLOR,
+            'global'    => [ 'active' => true ],
+            'selectors' => [ '{{WRAPPER}} .arb-acc-item.is-open' => 'background-color: {{VALUE}};' ],
         ] );
 
         $this->add_control( 'acc_item_border_color', [
@@ -617,7 +606,6 @@ class ARB_Widget extends \Elementor\Widget_Base {
             'type'      => Controls_Manager::COLOR,
             'global'    => [ 'active' => true ],
             'selectors' => [ '{{WRAPPER}} .arb-acc-item' => 'border-color: {{VALUE}};' ],
-            'condition' => [ 'acc_separate_containers!' => 'yes' ],
         ] );
 
         $this->add_control( 'acc_item_border_width', [
@@ -626,7 +614,6 @@ class ARB_Widget extends \Elementor\Widget_Base {
             'size_units' => [ 'px' ],
             'range'      => [ 'px' => [ 'min' => 0, 'max' => 10 ] ],
             'selectors'  => [ '{{WRAPPER}} .arb-acc-item' => 'border-width: {{SIZE}}px; border-style: solid;' ],
-            'condition'  => [ 'acc_separate_containers!' => 'yes' ],
         ] );
 
         $this->add_control( 'acc_item_border_radius', [
@@ -635,7 +622,6 @@ class ARB_Widget extends \Elementor\Widget_Base {
             'size_units' => [ 'px', '%' ],
             'range'      => [ 'px' => [ 'min' => 0, 'max' => 60 ] ],
             'selectors'  => [ '{{WRAPPER}} .arb-acc-item' => 'border-radius: {{SIZE}}{{UNIT}};' ],
-            'condition'  => [ 'acc_separate_containers!' => 'yes' ],
         ] );
 
         $this->end_controls_section();
@@ -652,40 +638,6 @@ class ARB_Widget extends \Elementor\Widget_Base {
             'type'       => Controls_Manager::DIMENSIONS,
             'size_units' => [ 'px', 'em', '%' ],
             'selectors'  => [ '{{WRAPPER}} .arb-acc-header' => 'padding: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};' ],
-        ] );
-
-        $this->add_group_control( \Elementor\Group_Control_Background::get_type(), [
-            'name'      => 'acc_header_background',
-            'label'     => 'Fondo',
-            'types'     => [ 'classic', 'gradient' ],
-            'selector'  => '{{WRAPPER}} .arb-acc-header, {{WRAPPER}} .arb-acc-header:hover, {{WRAPPER}} .arb-acc-header:focus, {{WRAPPER}} .arb-acc-header:active',
-            'condition' => [ 'acc_separate_containers' => 'yes' ],
-        ] );
-
-        $this->add_control( 'acc_header_border_color', [
-            'label'     => 'Color de borde',
-            'type'      => Controls_Manager::COLOR,
-            'global'    => [ 'active' => true ],
-            'selectors' => [ '{{WRAPPER}} .arb-acc-header' => 'border-color: {{VALUE}};' ],
-            'condition' => [ 'acc_separate_containers' => 'yes' ],
-        ] );
-
-        $this->add_control( 'acc_header_border_width', [
-            'label'      => 'Ancho de borde',
-            'type'       => Controls_Manager::SLIDER,
-            'size_units' => [ 'px' ],
-            'range'      => [ 'px' => [ 'min' => 0, 'max' => 10 ] ],
-            'selectors'  => [ '{{WRAPPER}} .arb-acc-header' => 'border-width: {{SIZE}}px; border-style: solid;' ],
-            'condition'  => [ 'acc_separate_containers' => 'yes' ],
-        ] );
-
-        $this->add_control( 'acc_header_border_radius', [
-            'label'      => 'Border radius',
-            'type'       => Controls_Manager::SLIDER,
-            'size_units' => [ 'px', '%' ],
-            'range'      => [ 'px' => [ 'min' => 0, 'max' => 60 ] ],
-            'selectors'  => [ '{{WRAPPER}} .arb-acc-header' => 'border-radius: {{SIZE}}{{UNIT}};' ],
-            'condition'  => [ 'acc_separate_containers' => 'yes' ],
         ] );
 
         $this->add_control( 'acc_question_color', [
@@ -723,37 +675,11 @@ class ARB_Widget extends \Elementor\Widget_Base {
             'selectors'  => [ '{{WRAPPER}} .arb-acc-content' => 'padding: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};' ],
         ] );
 
-        $this->add_group_control( \Elementor\Group_Control_Background::get_type(), [
-            'name'     => 'acc_content_background',
-            'label'    => 'Fondo del cuerpo',
-            'types'    => [ 'classic', 'gradient' ],
-            'selector' => '{{WRAPPER}} .arb-acc-body',
-        ] );
-
-        $this->add_control( 'acc_body_border_color', [
-            'label'     => 'Color de borde del cuerpo',
+        $this->add_control( 'acc_content_bg', [
+            'label'     => 'Fondo del cuerpo',
             'type'      => Controls_Manager::COLOR,
             'global'    => [ 'active' => true ],
-            'selectors' => [ '{{WRAPPER}} .arb-acc-body' => 'border-color: {{VALUE}};' ],
-            'condition' => [ 'acc_separate_containers' => 'yes' ],
-        ] );
-
-        $this->add_control( 'acc_body_border_width', [
-            'label'      => 'Ancho de borde del cuerpo',
-            'type'       => Controls_Manager::SLIDER,
-            'size_units' => [ 'px' ],
-            'range'      => [ 'px' => [ 'min' => 0, 'max' => 10 ] ],
-            'selectors'  => [ '{{WRAPPER}} .arb-acc-body' => 'border-width: {{SIZE}}px; border-style: solid;' ],
-            'condition'  => [ 'acc_separate_containers' => 'yes' ],
-        ] );
-
-        $this->add_control( 'acc_body_border_radius', [
-            'label'      => 'Border radius del cuerpo',
-            'type'       => Controls_Manager::SLIDER,
-            'size_units' => [ 'px', '%' ],
-            'range'      => [ 'px' => [ 'min' => 0, 'max' => 60 ] ],
-            'selectors'  => [ '{{WRAPPER}} .arb-acc-body' => 'border-radius: {{SIZE}}{{UNIT}};' ],
-            'condition'  => [ 'acc_separate_containers' => 'yes' ],
+            'selectors' => [ '{{WRAPPER}} .arb-acc-body' => 'background-color: {{VALUE}};' ],
         ] );
 
         $this->add_control( 'acc_content_color', [
@@ -1431,8 +1357,7 @@ class ARB_Widget extends \Elementor\Widget_Base {
         $title_align  = in_array( $s['acc_header_title_align'] ?? 'left', [ 'left', 'center', 'right', 'full' ], true )
                         ? $s['acc_header_title_align'] : 'left';
 
-        $separate  = ( ! empty( $s['acc_separate_containers'] ) && $s['acc_separate_containers'] === 'yes' ) ? ' arb-separate' : '';
-        $acc_class = 'arb-accordion' . ( $columns === '2' ? ' arb-accordion-cols-2' : '' ) . $icon_pos . $separate;
+        $acc_class = 'arb-accordion' . ( $columns === '2' ? ' arb-accordion-cols-2' : '' ) . $icon_pos;
 
         echo '<div class="' . esc_attr( $acc_class ) . '" data-close-others="' . esc_attr( $close_others ) . '">';
 
