@@ -1391,10 +1391,12 @@ class ARB_Widget extends \Elementor\Widget_Base {
     }
 
     private function render_accordion_item( int $idx, array $row, string $q_field, string $a_field, string $img_field, string $icon_open, string $icon_close, string $title_align ): void {
-        $body_id  = 'arb-acc-body-' . esc_attr( $this->get_id() ) . '-' . $idx;
-        $question = '';
-        $answer   = '';
-        $img_html = '';
+        $widget_id = $this->get_id();
+        $header_id = 'arb-acc-header-' . $widget_id . '-' . $idx;
+        $body_id   = 'arb-acc-body-'   . $widget_id . '-' . $idx;
+        $question  = '';
+        $answer    = '';
+        $img_html  = '';
 
         if ( $q_field && array_key_exists( $q_field, $row ) ) {
             $v        = $row[ $q_field ];
@@ -1420,14 +1422,26 @@ class ARB_Widget extends \Elementor\Widget_Base {
         }
 
         $header_class = 'arb-acc-header arb-acc-header--' . $title_align;
+        $extra_attrs  = $question === ''
+            ? ' aria-label="' . esc_attr( sprintf( __( 'Item %d', 'acf-repeater-blocks' ), $idx + 1 ) ) . '"'
+            : '';
 
         echo '<div class="arb-acc-item">';
-        echo '<button class="' . esc_attr( $header_class ) . '" aria-expanded="false" aria-controls="' . esc_attr( $body_id ) . '">';
+        echo '<button type="button" class="' . esc_attr( $header_class ) . '" '
+            . 'id="' . esc_attr( $header_id ) . '" '
+            . 'aria-expanded="false" '
+            . 'aria-controls="' . esc_attr( $body_id ) . '"'
+            . $extra_attrs
+            . '>';
         echo '<span class="arb-acc-question">' . $question . '</span>';
-        echo '<span class="arb-acc-icon arb-acc-icon--open">'  . $icon_open  . '</span>';
-        echo '<span class="arb-acc-icon arb-acc-icon--close">' . $icon_close . '</span>';
+        echo '<span class="arb-acc-icon arb-acc-icon--open" aria-hidden="true">'  . $icon_open  . '</span>';
+        echo '<span class="arb-acc-icon arb-acc-icon--close" aria-hidden="true">' . $icon_close . '</span>';
         echo '</button>';
-        echo '<div class="arb-acc-body" id="' . esc_attr( $body_id ) . '" hidden>';
+        echo '<div class="arb-acc-body" '
+            . 'id="' . esc_attr( $body_id ) . '" '
+            . 'role="region" '
+            . 'aria-labelledby="' . esc_attr( $header_id ) . '" '
+            . 'hidden>';
         echo '<div class="arb-acc-content">' . $answer . $img_html . '</div>';
         echo '</div>';
         echo '</div>';
