@@ -299,19 +299,3 @@
         transition: none;
     }
 }
-
-/* ── Contenedores separados ─────────────────────────────────────────────── */
-/* When acc_separate_containers is enabled, the .arb-acc-item wrapper becomes
- * a transparent structural container; each of .arb-acc-header and .arb-acc-body
- * carries its own background, border, and border-radius independently. */
-.arb-accordion.arb-separate .arb-acc-item {
-    background: none;
-    border: none;
-    border-radius: 0;
-    overflow: visible;
-}
-
-/* Small gap between the header and body boxes when both are visible */
-.arb-accordion.arb-separate .arb-acc-body {
-    margin-top: 4px;
-}
