@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 /**
  * ARB_Widget — ACF Repeater for Elementor
  * Tres modos: Sub-campos | HTML libre | Plantilla
@@ -1203,7 +1203,7 @@ class ARB_Widget extends \Elementor\Widget_Base {
         $tpl = preg_replace( '/\bon\w+\s*=\s*(?:"[^"]*"|\'[^\']*\'|[^\s>\/]*)/i', '', $tpl );
         $tpl = preg_replace( '/<script\b[^>]*>.*?<\/script\s*>/is', '', $tpl );
         // Neutraliza javascript: y data: en atributos href, src, data, action, formaction, xlink:href (quoted y sin comillas)
-        $tpl = preg_replace( '/(href|src|data|action|formaction|xlink:href)\s*=\s*(["']?)\s*(?:javascript|data)\s*:/i', '$1=$2#', $tpl );
+$tpl = preg_replace( '/(href|src|action|formaction|xlink:href)\s*=\s*(["\']?)\s*(?:javascript|data)\s*:/i', '$1=$2#', $tpl );
         // Elimina srcdoc en <iframe> - permite HTML arbitrario en contexto same-origin
         $tpl = preg_replace( '/\bsrcdoc\s*=\s*(?:"[^"]*"|\'[^\']*\'|[^\s>\/]*)/i', '', $tpl );
         // Neutraliza javascript: y data: en url() de atributos style
