@@ -116,7 +116,10 @@ class ARB_Accordion_Widget extends \Elementor\Widget_Base {
             'size_units' => [ 'px', 'em' ],
             'range'      => [ 'px' => [ 'min' => 0, 'max' => 60 ] ],
             'default'    => [ 'unit' => 'px', 'size' => 12 ],
-            'selectors'  => [ '{{WRAPPER}} .arb-accordion' => 'row-gap: {{SIZE}}{{UNIT}};' ],
+            'selectors'  => [
+                '{{WRAPPER}} .arb-accordion' => 'row-gap: {{SIZE}}{{UNIT}};',
+                '{{WRAPPER}} .arb-acc-col'   => 'gap: {{SIZE}}{{UNIT}};',
+            ],
         ] );
 
         $this->add_control( 'close_others', [
