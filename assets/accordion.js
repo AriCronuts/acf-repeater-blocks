@@ -16,22 +16,26 @@
             if ( accordion.dataset.arbInit ) return;
             accordion.dataset.arbInit = '1';
 
-            accordion.querySelectorAll( '.arb-acc-header' ).forEach( function ( btn ) {
-                btn.addEventListener( 'click', function () {
-                    var item = btn.closest( '.arb-acc-item' );
-                    if ( ! item ) return;
-                    var isOpen      = item.classList.contains( 'is-open' );
-                    var closeOthers = accordion.dataset.closeOthers === '1';
+            // Use event delegation so headers added dynamically after init still respond.
+            accordion.addEventListener( 'click', function ( e ) {
+                var btn = e.target.closest( '.arb-acc-header' );
+                if ( ! btn ) return;
+                // Ignore clicks from a nested accordion so only the innermost handles them.
+                if ( btn.closest( '.arb-accordion' ) !== accordion ) return;
 
-                    if ( closeOthers ) {
-                        accordion.querySelectorAll( '.arb-acc-item.is-open' ).forEach( function ( openEl ) {
-                            if ( openEl !== item ) closeItem( openEl );
-                        } );
-                    }
+                var item = btn.closest( '.arb-acc-item' );
+                if ( ! item ) return;
+                var isOpen      = item.classList.contains( 'is-open' );
+                var closeOthers = accordion.dataset.closeOthers === '1';
 
-                    if ( ! isOpen ) { openItem( item ); }
-                    else            { closeItem( item ); }
-                } );
+                if ( closeOthers ) {
+                    accordion.querySelectorAll( '.arb-acc-item.is-open' ).forEach( function ( openEl ) {
+                        if ( openEl !== item ) closeItem( openEl );
+                    } );
+                }
+
+                if ( ! isOpen ) { openItem( item ); }
+                else            { closeItem( item ); }
             } );
         } );
     }

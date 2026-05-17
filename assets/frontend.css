@@ -187,6 +187,15 @@
     transition: var(--arb-transition-acc);
 }
 
+/* Ensure closed panels stay invisible even when a theme overrides [hidden].
+ * Without this, a theme rule like [hidden]{display:block} would leave the
+ * body visible to both users and screen readers after the close animation,
+ * breaking ARIA semantics (the button reports aria-expanded=false but the
+ * panel content remains in the accessibility tree). */
+.arb-acc-body[hidden] {
+    display: none !important;
+}
+
 .arb-acc-content {
     padding: 0 var(--arb-padding-body) var(--arb-padding-body);
 }
@@ -253,6 +262,7 @@
     transition: none;
     font-family: inherit;
     font-size: inherit;
+    font-weight: inherit;
     line-height: inherit;
 }
 
