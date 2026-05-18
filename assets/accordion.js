@@ -81,6 +81,10 @@
             openTransitionListeners.delete( body );
         }
 
+        // aria-expanded must be set before removing hidden so the button state
+        // and the region's presence in the accessibility tree are consistent
+        // from the moment AT can observe either change.
+        header.setAttribute( 'aria-expanded', 'true' );
         body.removeAttribute( 'hidden' );
 
         if ( prefersReducedMotion() ) {
@@ -92,7 +96,6 @@
             body.style.maxHeight = 'none';
             body.style.overflow  = 'visible';
             body.style.opacity   = '1';
-            header.setAttribute( 'aria-expanded', 'true' );
             return;
         }
 
@@ -105,7 +108,6 @@
         item.classList.add( 'is-open' );
         body.style.maxHeight = body.scrollHeight + 'px';
         body.style.opacity   = '1';
-        header.setAttribute( 'aria-expanded', 'true' );
 
         // If transitions are suppressed by a CSS override other than the
         // prefers-reduced-motion media query (e.g. theme !important rule),
