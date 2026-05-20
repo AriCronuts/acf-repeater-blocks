@@ -45,10 +45,7 @@
     box-sizing: border-box;
 }
 
-.arb-table-wrap.arb-table-responsive {
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-}
+/* .arb-table-responsive: overflow-x handled by .arb-table-wrap above */
 
 .arb-table {
     width: 100%;

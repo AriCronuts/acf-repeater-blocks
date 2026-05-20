@@ -16,22 +16,26 @@
             if ( accordion.dataset.arbInit ) return;
             accordion.dataset.arbInit = '1';
 
-            accordion.querySelectorAll( '.arb-acc-header' ).forEach( function ( btn ) {
-                btn.addEventListener( 'click', function () {
-                    var item = btn.closest( '.arb-acc-item' );
-                    if ( ! item ) return;
-                    var isOpen      = item.classList.contains( 'is-open' );
-                    var closeOthers = accordion.dataset.closeOthers === '1';
+            // Delegated listener on the accordion container instead of per-header
+            // listeners so that items added dynamically after initialization also
+            // respond to clicks without requiring a second initAccordion() call.
+            accordion.addEventListener( 'click', function ( e ) {
+                var btn = e.target.closest( '.arb-acc-header' );
+                // Ignore clicks not on a header, or from a nested accordion.
+                if ( ! btn || btn.closest( '.arb-accordion' ) !== accordion ) return;
+                var item = btn.closest( '.arb-acc-item' );
+                if ( ! item ) return;
+                var isOpen      = item.classList.contains( 'is-open' );
+                var closeOthers = accordion.dataset.closeOthers === '1';
 
-                    if ( closeOthers ) {
-                        accordion.querySelectorAll( '.arb-acc-item.is-open' ).forEach( function ( openEl ) {
-                            if ( openEl !== item ) closeItem( openEl );
-                        } );
-                    }
+                if ( closeOthers ) {
+                    accordion.querySelectorAll( '.arb-acc-item.is-open' ).forEach( function ( openEl ) {
+                        if ( openEl !== item ) closeItem( openEl );
+                    } );
+                }
 
-                    if ( ! isOpen ) { openItem( item ); }
-                    else            { closeItem( item ); }
-                } );
+                if ( ! isOpen ) { openItem( item ); }
+                else            { closeItem( item ); }
             } );
         } );
     }
