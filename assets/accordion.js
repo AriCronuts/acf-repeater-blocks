@@ -165,13 +165,17 @@
         // correctly. This reverses the 'visible' set at end of openItem.
         body.style.overflow = '';
 
+        // aria-expanded must reflect the new state before any visual change
+        // begins — mirrors the pattern in openItem() where aria-expanded is
+        // set before the open animation so AT state and visuals are in sync.
+        header.setAttribute( 'aria-expanded', 'false' );
+
         if ( prefersReducedMotion() ) {
             // Skip animation: hide content and update state synchronously.
             // Critical: if we relied on transitionend here and transitions are
             // suppressed, the hidden attribute would never be restored, leaving
             // the panel content readable by assistive technologies.
             item.classList.remove( 'is-open' );
-            header.setAttribute( 'aria-expanded', 'false' );
             body.setAttribute( 'hidden', '' );
             body.style.maxHeight = '';
             body.style.opacity   = '';
@@ -185,7 +189,6 @@
         item.classList.remove( 'is-open' );
         body.style.maxHeight = '0';
         body.style.opacity   = '0';
-        header.setAttribute( 'aria-expanded', 'false' );
 
         // If transitions are suppressed by a CSS override other than the
         // prefers-reduced-motion media query, transitionend will never fire.
