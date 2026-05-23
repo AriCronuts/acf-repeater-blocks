@@ -357,6 +357,12 @@ class ARB_Accordion_Widget extends \Elementor\Widget_Base {
             return;
         }
 
+        // ACF Group fields return a flat associative array instead of an array of row arrays.
+        // Normalize to array-of-rows so the render loop and render_accordion_item() type hints work.
+        if ( ! is_array( reset( $rows ) ) ) {
+            $rows = [ $rows ];
+        }
+
         $q_field   = ARB_ACF_Helpers::sanitize_field_name( $s['question_field'] ?? '' );
         $a_field   = ARB_ACF_Helpers::sanitize_field_name( $s['answer_field']   ?? '' );
         $img_field = ARB_ACF_Helpers::sanitize_field_name( $s['image_field']    ?? '' );
