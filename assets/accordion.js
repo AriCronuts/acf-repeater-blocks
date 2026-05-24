@@ -215,11 +215,18 @@
         body.addEventListener( 'transitionend', onEnd );
     }
 
-    document.addEventListener( 'DOMContentLoaded', function () {
+    // Guard against deferred/async script loading (e.g. WP Rocket) where
+    // DOMContentLoaded may have already fired before this script executes.
+    if ( document.readyState === 'loading' ) {
+        document.addEventListener( 'DOMContentLoaded', function () {
+            initAccordion( document );
+        } );
+    } else {
         initAccordion( document );
-    } );
+    }
 
     function registerElementorHook() {
+        if ( ! window.elementorFrontend || ! window.elementorFrontend.hooks ) return;
         window.elementorFrontend.hooks.addAction(
             'frontend/element_ready/arb-accordion/default',
             function ( $scope ) {
