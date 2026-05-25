@@ -524,7 +524,11 @@ class ARB_Accordion_Widget extends \Elementor\Widget_Base {
                             'stroke-linecap' => true, 'stroke-linejoin' => true, 'transform' => true ],
         ];
 
-        return wp_kses( $raw, $allowed );
+        $sanitized = wp_kses( $raw, $allowed );
+        // wp_kses lowercases all attribute names; SVG is case-sensitive and only
+        // recognises "viewBox" (camelCase) — "viewbox" is silently ignored, breaking
+        // coordinate scaling for any icon that does not also carry explicit width/height.
+        return str_replace( 'viewbox=', 'viewBox=', $sanitized );
     }
 
     private function arb_placeholder( string $msg ): void {
