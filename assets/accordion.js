@@ -37,6 +37,37 @@
                 if ( ! isOpen ) { openItem( item ); }
                 else            { closeItem( item ); }
             } );
+
+            // WAI-ARIA APG accordion keyboard pattern: arrow keys move focus between
+            // headers so keyboard users can navigate without tabbing through all page content.
+            accordion.addEventListener( 'keydown', function ( e ) {
+                if ( e.key !== 'ArrowDown' && e.key !== 'ArrowUp' &&
+                     e.key !== 'Home'      && e.key !== 'End' ) return;
+                var btn = e.target.closest( '.arb-acc-header' );
+                if ( ! btn || btn.closest( '.arb-accordion' ) !== accordion ) return;
+
+                // Collect only headers that belong to this accordion (not nested ones).
+                var headers = [];
+                accordion.querySelectorAll( '.arb-acc-header' ).forEach( function ( h ) {
+                    if ( h.closest( '.arb-accordion' ) === accordion ) headers.push( h );
+                } );
+                if ( headers.length < 2 ) return;
+
+                var idx  = headers.indexOf( btn );
+                var next;
+                if ( e.key === 'ArrowDown' ) {
+                    next = headers[ ( idx + 1 ) % headers.length ];
+                } else if ( e.key === 'ArrowUp' ) {
+                    next = headers[ ( idx - 1 + headers.length ) % headers.length ];
+                } else if ( e.key === 'Home' ) {
+                    next = headers[ 0 ];
+                } else {
+                    next = headers[ headers.length - 1 ];
+                }
+
+                e.preventDefault();
+                next.focus();
+            } );
         } );
     }
 
