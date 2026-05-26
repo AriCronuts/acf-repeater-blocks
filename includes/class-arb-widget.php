@@ -1202,8 +1202,21 @@ class ARB_Widget extends \Elementor\Widget_Base {
 
         $tpl = preg_replace( '/\bon\w+\s*=\s*(?:"[^"]*"|\'[^\']*\'|[^\s>\/]*)/i', '', $tpl );
         $tpl = preg_replace( '/<script\b[^>]*>.*?<\/script\s*>/is', '', $tpl );
-        // Neutraliza javascript: y data: en atributos href, src, data, action, formaction, xlink:href (quoted y sin comillas)
-$tpl = preg_replace( '/(href|src|action|formaction|xlink:href)\s*=\s*(["\']?)\s*(?:javascript|data)\s*:/i', '$1=$2#', $tpl );
+        // Neutraliza javascript:/vbscript:/data: en atributos href, src, action, formaction, xlink:href.
+        // Usa callback para decodificar entidades HTML antes de comparar, evitando el bypass con &#106;avascript: etc.
+        $tpl = preg_replace_callback(
+            '/(href|src|action|formaction|xlink:href)\s*=\s*("[^"]*"|\'[^\']*\'|[^\s>\/]*)/i',
+            function ( $m ) {
+                $raw   = $m[2];
+                $q     = ( strlen( $raw ) > 0 && ( $raw[0] === '"' || $raw[0] === "'" ) ) ? $raw[0] : '';
+                $inner = $q ? substr( $raw, 1, -1 ) : $raw;
+                if ( preg_match( '/^\s*(?:javascript|vbscript|data)\s*:/i', html_entity_decode( $inner, ENT_QUOTES | ENT_HTML5, 'UTF-8' ) ) ) {
+                    return $m[1] . '=' . $q . '#' . $q;
+                }
+                return $m[0];
+            },
+            $tpl
+        );
         // Elimina srcdoc en <iframe> - permite HTML arbitrario en contexto same-origin
         $tpl = preg_replace( '/\bsrcdoc\s*=\s*(?:"[^"]*"|\'[^\']*\'|[^\s>\/]*)/i', '', $tpl );
         // Neutraliza javascript: y data: en url() de atributos style
