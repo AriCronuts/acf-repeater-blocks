@@ -51,7 +51,7 @@
                 accordion.querySelectorAll( '.arb-acc-header' ).forEach( function ( h ) {
                     if ( h.closest( '.arb-accordion' ) === accordion ) headers.push( h );
                 } );
-                if ( headers.length < 2 ) return;
+                if ( headers.length < 1 ) return;
 
                 var idx  = headers.indexOf( btn );
                 var next;
